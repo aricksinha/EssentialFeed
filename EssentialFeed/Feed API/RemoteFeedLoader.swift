@@ -9,7 +9,7 @@ import Foundation
 
 /// HTTPClient is public coz it can be implemented by external modules
 public protocol HTTPClient {
-    func get(from url: URL?)
+    func get(from url: URL)
 }
 
 /// RemoteFeedLoader is public coz it can be implemented by external modules & it can even be created by another module so make init() also public
