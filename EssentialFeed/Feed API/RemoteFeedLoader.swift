@@ -7,9 +7,14 @@
 
 import Foundation
 
+public enum HTTPClientResult {
+   case success(HTTPURLResponse)
+   case failure(Error)
+}
+
 /// HTTPClient is public coz it can be implemented by external modules
 public protocol HTTPClient {
-    func get(from url: URL, completion: @escaping (Error?, HTTPURLResponse?) -> Void)
+    func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void)
 }
 
 /// RemoteFeedLoader is public coz it can be implemented by external modules & it can even be created by another module so make init() also public
@@ -33,10 +38,11 @@ public final class RemoteFeedLoader {
     /// Give load() a completion block : (Error) -> Void and in order to prevent breaking test
     public func load(completion: @escaping (Error) -> Void) {
         /// client calling with its completion handler and inside the closure contains the mapping from CLIENT Error -> DOMAIN Error
-        client.get(from: url) { error, response in
-            if response != nil {
+        client.get(from: url) { result in
+            switch result {
+            case .success:
                 completion(.invalidData)
-            } else {
+            case .failure:
                 completion(.connectivity)
             }
         }
