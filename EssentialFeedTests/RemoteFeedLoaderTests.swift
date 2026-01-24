@@ -56,21 +56,17 @@ final class RemoteFeedLoaderTests: XCTestCase {
     
     // Only for test
     private class HTTPClientSpy: HTTPClient {
-        var requestedURLs = [URL]()
-        var completions = [(Error) -> Void]()
-        
+        private var messages: [(url: URL,completion: (Error) -> Void)] = []
+        var requestedURLs: [URL]  {
+            return messages.map{ $0.url }
+        }
         func get(from url: URL, completion: @escaping (Error) -> Void) {
-            /// THIS Error is Client error not DOMAIN error
-            ///  we are not stubbing - we don't have beahviour in SPY
-//            if let error = error {
-//                completion(error)
-//            }
-            completions.append(completion)
-            requestedURLs.append(url)
+            let message = (url, completion)
+            messages.append(message)
         }
         
         func complete(with error: Error, at index: Int = 0) {
-            completions[index](error)
+            messages[index].completion(error)
         }
     }
 }
