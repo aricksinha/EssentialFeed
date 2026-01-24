@@ -35,13 +35,15 @@ final class RemoteFeedLoaderTests: XCTestCase {
     
     func test_load_deliversErrorOnClientError() {
         let (sut, client) = makeSUT()
-        client.error = NSError(domain: "Test", code: 0)
         /// since callback is async we will pass completion block- we get an error and we wanna capture this error
         /// Give error a  better defination(custom error type inside RemoteFeedLoader) when client fails its a connectivity error
         var capturedErrors = [RemoteFeedLoader.Error]()
         sut.load { error in
             capturedErrors.append(error)
         }
+        ///  its now upto us to test scope to invoke that completion block
+        let clientError = NSError(domain: "Test", code: 0)
+        client.completions[0](clientError)
         XCTAssertEqual(capturedErrors, [.connectivity])
     }
 
@@ -55,13 +57,15 @@ final class RemoteFeedLoaderTests: XCTestCase {
     // Only for test
     private class HTTPClientSpy: HTTPClient {
         var requestedURLs = [URL]()
-        var error: NSError?
+        var completions = [(Error) -> Void]()
         
         func get(from url: URL, completion: @escaping (Error) -> Void) {
             /// THIS Error is Client error not DOMAIN error
-            if let error = error {
-                completion(error)
-            }
+            ///  we are not stubbing - we don't have beahviour in SPY
+//            if let error = error {
+//                completion(error)
+//            }
+            completions.append(completion)
             requestedURLs.append(url)
         }
     }
