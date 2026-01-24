@@ -32,6 +32,19 @@ final class RemoteFeedLoaderTests: XCTestCase {
         sut.load()
         XCTAssertEqual(client.requestedURLs, [url, url])
     }
+    
+    func test_load_deliversErrorOnClientError() {
+        let (sut, client) = makeSUT()
+        client.error = NSError(domain: "Test", code: 0)
+        /// since callback is async we will pass completion block- we get an error and we wanna capture this error
+        /// Give error a  better defination(custom error type inside RemoteFeedLoader) when client fails its a connectivity error
+        /// Currently there is no method to tell HTTPClient failed so this test will fail
+        var capturedError: RemoteFeedLoader.Error?
+        sut.load { error in
+            capturedError = error
+        }
+        XCTAssertEqual(capturedError, .connectivity)
+    }
 
     //MARK: - Helpers
     private func makeSUT(url: URL = URL(string: "https://a-url.com")!) -> (sut: RemoteFeedLoader, client: HTTPClientSpy) {
@@ -43,8 +56,13 @@ final class RemoteFeedLoaderTests: XCTestCase {
     // Only for test
     private class HTTPClientSpy: HTTPClient {
         var requestedURLs = [URL]()
+        var error: NSError?
         
-        func get(from url: URL) {
+        func get(from url: URL, completion: @escaping (Error) -> Void) {
+            /// THIS Error is Client error not DOMAIN error
+            if let error = error {
+                completion(error)
+            }
             requestedURLs.append(url)
         }
     }
