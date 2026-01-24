@@ -38,12 +38,11 @@ final class RemoteFeedLoaderTests: XCTestCase {
         client.error = NSError(domain: "Test", code: 0)
         /// since callback is async we will pass completion block- we get an error and we wanna capture this error
         /// Give error a  better defination(custom error type inside RemoteFeedLoader) when client fails its a connectivity error
-        /// Currently there is no method to tell HTTPClient failed so this test will fail
-        var capturedError: RemoteFeedLoader.Error?
+        var capturedErrors = [RemoteFeedLoader.Error]()
         sut.load { error in
-            capturedError = error
+            capturedErrors.append(error)
         }
-        XCTAssertEqual(capturedError, .connectivity)
+        XCTAssertEqual(capturedErrors, [.connectivity])
     }
 
     //MARK: - Helpers
