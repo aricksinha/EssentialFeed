@@ -30,8 +30,7 @@ public final class RemoteFeedLoader {
     }
     
     /// Give load() a completion block : (Error) -> Void and in order to prevent breaking test
-    /// let give it default value
-    public func load(completion: @escaping (Error) -> Void = { _ in }) {
+    public func load(completion: @escaping (Error) -> Void) {
         /// client calling with its completion handler and inside the closure contains the mapping from CLIENT Error -> DOMAIN Error
         client.get(from: url) { error in
             completion(.connectivity)
