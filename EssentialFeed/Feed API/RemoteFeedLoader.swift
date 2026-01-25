@@ -40,13 +40,18 @@ public final class RemoteFeedLoader {
         self.client = client
     }
     
-    /// Give load() a completion block : (Error) -> Void and in order to prevent breaking test
-    public func load(completion: @escaping (Result) -> Void) {
+    /// Give load() a completion block : (Result) -> Void 
+    public func load(completion: @escaping (Result) -> Void)  {
         /// client calling with its completion handler and inside the closure contains the mapping from CLIENT Error -> DOMAIN Error
         client.get(from: url) { result in
             switch result {
-            case .success:
-                completion(.failure(.invalidData))
+            case .success(let data, _):
+                /// JSONSerialization is also a singleton with small s like URLSession(Refer lecture -1)
+                if let _ = try? JSONSerialization.jsonObject(with: data) {
+                    completion(.success([]))
+                } else {
+                    completion(.failure(.invalidData))
+                }
             case .failure:
                 completion(.failure(.connectivity))
             }
