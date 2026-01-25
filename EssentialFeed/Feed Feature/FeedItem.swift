@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// this is normal struct Model that represents FeedFeature.FeedItem representation
 public struct FeedItem: Equatable {
     public let id: UUID
     public let description: String?
@@ -18,15 +19,5 @@ public struct FeedItem: Equatable {
         self.description = description
         self.location = location
         self.imageURL = imageURL
-    }
-}
-
-extension FeedItem: Decodable {
-    /// also map the json anf model keys here
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case description
-        case location
-        case imageURL = "image"
     }
 }
