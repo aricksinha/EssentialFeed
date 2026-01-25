@@ -30,20 +30,25 @@ public final class RemoteFeedLoader {
        case invalidData
     }
     
+    public enum Result: Equatable {
+        case success([FeedItem])
+        case failure(Error)
+    }
+    
     public init(url: URL, client: HTTPClient) {
         self.url = url
         self.client = client
     }
     
     /// Give load() a completion block : (Error) -> Void and in order to prevent breaking test
-    public func load(completion: @escaping (Error) -> Void) {
+    public func load(completion: @escaping (Result) -> Void) {
         /// client calling with its completion handler and inside the closure contains the mapping from CLIENT Error -> DOMAIN Error
         client.get(from: url) { result in
             switch result {
             case .success:
-                completion(.invalidData)
+                completion(.failure(.invalidData))
             case .failure:
-                completion(.connectivity)
+                completion(.failure(.connectivity))
             }
         }
     }
