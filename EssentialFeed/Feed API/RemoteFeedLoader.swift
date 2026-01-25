@@ -45,9 +45,9 @@ public final class RemoteFeedLoader {
         /// client calling with its completion handler and inside the closure contains the mapping from CLIENT Error -> DOMAIN Error
         client.get(from: url) { result in
             switch result {
-            case .success(let data, _):
+            case .success(let data, let response):
                 /// JSONSerialization is also a singleton with small s like URLSession(Refer lecture -1)
-                if let root = try? JSONDecoder().decode(Root.self, from: data) {
+                if response.statusCode == 200,let root = try? JSONDecoder().decode(Root.self, from: data) {
                     completion(.success(root.items))
                 } else {
                     completion(.failure(.invalidData))

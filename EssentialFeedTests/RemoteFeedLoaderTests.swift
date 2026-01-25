@@ -46,7 +46,8 @@ final class RemoteFeedLoaderTests: XCTestCase {
         /// since callback is async we will pass completion block- we get an error and we wanna capture this error
         [199, 201, 300, 400, 500].enumerated().forEach { index, code in
             expect(sut: sut, toCompleteWithResult: .failure(.invalidData)) {
-                client.complete(withStatusCode: code, at: index)
+                let json = makeItemsJSON([])
+                client.complete(withStatusCode: code, data: json, at: index)
             }
         }
     }
@@ -153,7 +154,7 @@ final class RemoteFeedLoaderTests: XCTestCase {
         
         func complete(
             withStatusCode statusCode: Int,
-            data : Data = Data(), /// default value given to prevent test breaking
+            data : Data,
             at index: Int = 0
         ) {
             let response = HTTPURLResponse(
