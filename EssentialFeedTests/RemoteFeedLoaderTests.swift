@@ -58,12 +58,50 @@ final class RemoteFeedLoaderTests: XCTestCase {
             client.complete(withStatusCode: 200, data: invalidJSON)
         }
     }
-    // Happy path
+    /// Happy path but with empty list
     func test_deliversNoItemsOn200HTTPResponseWithEmptyList() {
         let (sut, client) = makeSUT()
         expect(sut: sut, toCompleteWithResult: .success([])) {
             let emptyListJson = Data(bytes: "{\"items\": []}".utf8)
             client.complete(withStatusCode: 200, data: emptyListJson)
+        }
+    }
+    
+    /// We have the items , we need to map it
+    func test_deliversItemsOn200HTTPResponseeWithJSONItems() {
+        let (sut, client) = makeSUT()
+        let item1 = FeedItem(
+            id: UUID(),
+            description: nil,
+            location: nil,
+            imageURL: URL(string: "http://a-url.com")!
+        )
+        /// JSON representation - optional(nil) values not added in JSON payload
+        let item1Json = [
+            "id": item1.id.uuidString,
+            "image": item1.imageURL.absoluteString
+        ]
+        
+        let item2 = FeedItem(
+            id: UUID(),
+            description: "a description",
+            location: "a location",
+            imageURL: URL(string: "http://another-url.com")!
+        )
+        
+        let item2Json = [
+            "id": item2.id.uuidString,
+            "description": item2.description,
+            "location": item2.location,
+            "image": item2.imageURL.absoluteString
+        ]
+        /// wrap it in Items keypath to match our payload contract
+        let itemsJson = [
+            "items": [item1Json, item2Json]
+        ]
+        expect(sut: sut, toCompleteWithResult: .success([item1, item2])) {
+            let itemListJson = try! JSONSerialization.data(withJSONObject: itemsJson)
+            client.complete(withStatusCode: 200, data: itemListJson)
         }
     }
 
