@@ -33,7 +33,8 @@ public final class RemoteFeedLoader {
     /// Give load() a completion block : (Result) -> Void 
     public func load(completion: @escaping (Result) -> Void)  {
         /// client calling with its completion handler and inside the closure contains the mapping from CLIENT Error -> DOMAIN Error
-        client.get(from: url) { result in
+        client.get(from: url) { [weak self] result in
+            guard let self = self else { return }
             switch result {
             case .success(let data, let response):
                 completion(FeedItemsMapper.map(data, response: response))
