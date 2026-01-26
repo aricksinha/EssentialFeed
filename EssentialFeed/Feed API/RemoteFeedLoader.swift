@@ -7,16 +7,6 @@
 
 import Foundation
 
-public enum HTTPClientResult {
-   case success(Data, HTTPURLResponse)
-   case failure(Error)
-}
-
-/// HTTPClient is public coz it can be implemented by external modules
-public protocol HTTPClient {
-    func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void)
-}
-
 /// RemoteFeedLoader is public coz it can be implemented by external modules & it can even be created by another module so make init() also public
 /// load() is behaviour of this class - tested outside so make it public
 /// properties let it be private - noone is using it outside this class
