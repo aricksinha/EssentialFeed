@@ -11,7 +11,7 @@ import Foundation
 /// load() is behaviour of this class - tested outside so make it public
 /// properties let it be private - noone is using it outside this class
 /// No use case of subclassing it-
-public final class RemoteFeedLoader {
+public final class RemoteFeedLoader: FeedLoader {
     private let url: URL
     private let client: HTTPClient
     
