@@ -20,10 +20,7 @@ public final class RemoteFeedLoader {
        case invalidData
     }
     
-    public enum Result: Equatable {
-        case success([FeedItem])
-        case failure(Error)
-    }
+    public typealias Result = LoadFeedResult<Error>
     
     public init(url: URL, client: HTTPClient) {
         self.url = url
@@ -39,7 +36,8 @@ public final class RemoteFeedLoader {
             case .success(let data, let response):
                 completion(FeedItemsMapper.map(data, response: response))
             case .failure:
-                completion(.failure(.connectivity))
+                /// this Error is Domain specific error
+                completion(.failure(Error.connectivity))
             }
         }
     }
