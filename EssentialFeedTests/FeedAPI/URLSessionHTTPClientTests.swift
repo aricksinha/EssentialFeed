@@ -19,15 +19,6 @@ class URLSessionHTTPClient {
 }
 
 final class URLSessionHTTPClientTests: XCTestCase {
-
-    func test_getFromURL_createsDataTaskWithURL() {
-        let url = URL(string: "http://any-url.com")!
-        let session = URLSessionSpy()
-        let sut = URLSessionHTTPClient(session: session)
-        sut.get(from: url)
-        
-        XCTAssertEqual(session.receivedURLs, [url])
-    }
     
     func test_getFromURL_resumesDataTaskWithURL() {
         let url = URL(string: "http://any-url.com")!
@@ -44,13 +35,11 @@ final class URLSessionHTTPClientTests: XCTestCase {
     //MARK: - Helpers
     // APPROACH - 2 Subclass Based Mocking
     private class URLSessionSpy: URLSession {
-        var receivedURLs: [URL] = []
         var stubs = [URL: URLSessionDataTask]()
         
         /// Everytime we invoke dataTask - receivedURLs gets appended[capturing the URL]
         /// think about what to return as we don't to execute a N/W request ever in test - we need a mock impl of URLSessionDataTask
         override func dataTask(with url: URL, completionHandler: @escaping (Data?, URLResponse?, (any Error)?) -> Void) -> URLSessionDataTask {
-            receivedURLs.append(url)
             return stubs[url] ?? FakeURLSessionDataTask()
         }
         
