@@ -45,7 +45,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
             XCTAssertEqual(request.httpMethod, "GET")
             exp.fulfill()
         }
-        URLSessionHTTPClient().get(from: url) { _ in }
+        makeSUT().get(from: url) { _ in }
         wait(for: [exp], timeout: 1.0)
     }
     
@@ -59,11 +59,10 @@ final class URLSessionHTTPClientTests: XCTestCase {
             response: nil,
             error: error
         )
-        let sut = URLSessionHTTPClient()
         /// Make sure to get the error in result - get() needs a completion block add it  **URLSessionHTTPClient** prod code
         /// But this get() completion is async block better guarnatee we go inside block using **Expectation**
         let exp = expectation(description: "Wait for completion")
-        sut.get(from: url) { result in
+        makeSUT().get(from: url) { result in
             switch result {
             case let .failure(receivedError as NSError):
                 XCTAssertEqual(receivedError.domain, error.domain)
@@ -77,6 +76,10 @@ final class URLSessionHTTPClientTests: XCTestCase {
     }
     
     //MARK: - Helpers
+    func makeSUT() -> URLSessionHTTPClient {
+        return URLSessionHTTPClient()
+    }
+    
     // APPROACH - 4 URLProtocol STUBBING
     private class URLProtocolStub: URLProtocol {
         private static var stub: Stub?
