@@ -37,7 +37,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
     }
     
     func test_getFromURL_performsGETRequestWithURL() {
-        let url = URL(string: "http://any-url.com")!
+        let url = anyURL()
         let exp = expectation(description: "Wait for request")
         /// observe all request with observer closure
         URLProtocolStub.observeRequest { request in
@@ -51,7 +51,6 @@ final class URLSessionHTTPClientTests: XCTestCase {
     
     /// Handle the Errors first
     func test_getFromURL_failsOnRequestError() {
-        let url = URL(string: "http://any-url.com")!
         let error = NSError(domain: "any-error", code: 1)
         /// Stubbing error with URLProtocol subclass
         URLProtocolStub.stub(
@@ -62,7 +61,7 @@ final class URLSessionHTTPClientTests: XCTestCase {
         /// Make sure to get the error in result - get() needs a completion block add it  **URLSessionHTTPClient** prod code
         /// But this get() completion is async block better guarnatee we go inside block using **Expectation**
         let exp = expectation(description: "Wait for completion")
-        makeSUT().get(from: url) { result in
+        makeSUT().get(from: anyURL()) { result in
             switch result {
             case let .failure(receivedError as NSError):
                 XCTAssertEqual(receivedError.domain, error.domain)
@@ -76,12 +75,16 @@ final class URLSessionHTTPClientTests: XCTestCase {
     }
     
     //MARK: - Helpers
-    func makeSUT(file: StaticString = #file, line: UInt = #line) -> URLSessionHTTPClient {
+   private func makeSUT(file: StaticString = #file, line: UInt = #line) -> URLSessionHTTPClient {
         let sut = URLSessionHTTPClient()
         trackForMemoryLeak(sut, file: file, line: line)
         return sut
     }
-   
+
+    private func anyURL() -> URL {
+        return URL(string: "http://any-url.com")!
+    }
+    
     // APPROACH - 4 URLProtocol STUBBING
     private class URLProtocolStub: URLProtocol {
         private static var stub: Stub?
