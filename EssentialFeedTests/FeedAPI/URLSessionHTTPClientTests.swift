@@ -61,8 +61,31 @@ final class URLSessionHTTPClientTests: XCTestCase {
         XCTAssertEqual(error?.code, requestError.code)
     }
     
-    func test_getFromURL_failsOnAllNilValues() {
+    func test_getFromURL_failsOnAllInvalidRepresentableCases() {
+        /// - **Case- 1** data: nil, response: nil, error:nil
         XCTAssertNotNil(resultErrorFor(data: nil, response: nil, error: nil))
+        /// - **Case- 2** data: nil, response: URLResponse, error:nil
+        let noHTTPURLResponse = URLResponse(url: anyURL(), mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
+        XCTAssertNotNil(resultErrorFor(data: nil, response: noHTTPURLResponse, error: nil))
+        /// - **Case- 3** data: nil, response: HTTPURLResponse, error:nil
+        let anyHTTPURLResponse = HTTPURLResponse(url: anyURL(), statusCode: 200, httpVersion: nil, headerFields: nil)
+        XCTAssertNotNil(resultErrorFor(data: nil, response: anyHTTPURLResponse, error: nil))
+        /// - **Case- 4** data: value, response: nil, error:nil
+        let anyData = Data(bytes: "any-data".utf8)
+        XCTAssertNotNil(resultErrorFor(data: anyData, response: nil, error: nil))
+        /// - **Case- 5** data: value, response: nil, error:value
+        let anyError = NSError(domain: "any-error", code: 0)
+        XCTAssertNotNil(resultErrorFor(data: anyData, response: nil, error: anyError))
+        /// - **Case- 6** data: nil, URLResponse, error:value
+        XCTAssertNotNil(resultErrorFor(data: nil, response: noHTTPURLResponse, error: anyError))
+        /// - **Case- 7** data: nil, response: HTTPURLResponse, error:value
+        XCTAssertNotNil(resultErrorFor(data: nil, response: anyHTTPURLResponse, error: anyError))
+        /// - **Case- 8** data: value, response: URLResponse, error:value
+        XCTAssertNotNil(resultErrorFor(data: anyData, response: noHTTPURLResponse, error: anyError))
+        /// - **Case- 9** data: value, response: HTTPURLResponse, error:value
+        XCTAssertNotNil(resultErrorFor(data: anyData, response: anyHTTPURLResponse, error: anyError))
+        /// - **Case- 9** data: value, response: URLResponse, error:nil
+        XCTAssertNotNil(resultErrorFor(data: anyData, response: noHTTPURLResponse, error: nil))
     }
     
     //MARK: - Helpers
