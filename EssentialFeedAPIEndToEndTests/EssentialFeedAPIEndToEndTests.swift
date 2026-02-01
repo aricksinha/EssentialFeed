@@ -12,7 +12,7 @@ final class EssentialFeedAPIEndToEndTests: XCTestCase {
 
     /// In api - test account there are 8 items
     func test_endToendTestServerGetFeedResult_matchesFixedTestAccountData() {
-       let receivedResult = getFeedResult()        
+       let receivedResult = getFeedResult()
         // Then
         switch receivedResult {
         case let .success(items):
@@ -42,11 +42,12 @@ final class EssentialFeedAPIEndToEndTests: XCTestCase {
         )
     }
     
-    private func getFeedResult() -> LoadFeedResult? {
+    private func getFeedResult(file: StaticString = #file,line: UInt = #line) -> LoadFeedResult? {
         let testServerURL = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed")! // url backend gave us
         let client = URLSessionHTTPClient()
         let loader = RemoteFeedLoader(url: testServerURL, client: client)
-        
+        trackForMemoryLeak(client, file: file, line: line)
+        trackForMemoryLeak(loader, file: file, line: line)
         let exp = expectation(description: "Wait For completion")
         var receivedResult: LoadFeedResult?
         
