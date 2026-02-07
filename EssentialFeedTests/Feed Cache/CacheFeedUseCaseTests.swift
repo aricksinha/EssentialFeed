@@ -9,16 +9,23 @@ import XCTest
 import EssentialFeed
 
 final class FeedStore {
-    var  deleteFeedCacheCallCount = 0
-    var insertCallCount = 0
+    typealias DeletionCompletion = (Error?) -> Void
     
-    func deleteCachedFeed() {
-        deleteFeedCacheCallCount += 1
+    var insertCallCount = 0
+    var deletionCompletions = [DeletionCompletion]()
+    func deleteCachedFeed(completion: @escaping DeletionCompletion) {
+        deletionCompletions.append(completion)
     }
     
     func completeDeletion(with error: Error, index: Int = 0) {
-        
+        deletionCompletions[index](error)
     }
+    
+    func completeDeletionSuccessfully(at index: Int = 0) {
+        deletionCompletions[index](nil)
+    }
+    
+    func insert(_ items: [FeedItem]) { insertCallCount += 1 }
 }
 
 class LocalFeedLoader {
@@ -28,7 +35,11 @@ class LocalFeedLoader {
     }
     
     func save(_ items: [FeedItem]) {
-        store.deleteCachedFeed()
+        store.deleteCachedFeed { [weak self] error in
+            if error == nil {
+                self?.store.insert(items)
+            }
+        }
     }
 }
 
@@ -37,7 +48,7 @@ final class CacheFeedUseCaseTests: XCTestCase {
     /// 1: test to check we don't delete the cache upon FeedStore creation
     func test_init_doesNotDeleteCacheUponCreation() {
         let (_, store) = makeSUT()
-        XCTAssertEqual(store.deleteFeedCacheCallCount, 0)
+        XCTAssertEqual(store.deletionCompletions.count, 0)
     }
     
     /// 2: test the save command - then request cache deletion
@@ -45,7 +56,7 @@ final class CacheFeedUseCaseTests: XCTestCase {
         let (sut, store) = makeSUT()
         let items = [uniqueFeedItem(), uniqueFeedItem()]
         sut.save(items)
-        XCTAssertEqual(store.deleteFeedCacheCallCount, 1)
+        XCTAssertEqual(store.deletionCompletions.count, 1)
     }
     
     ///3: if Deleting cache might fail  then, we shdn’t progress with inserting Items in cache
@@ -56,6 +67,15 @@ final class CacheFeedUseCaseTests: XCTestCase {
         sut.save(items)
         store.completeDeletion(with: deletionError)
         XCTAssertEqual(store.insertCallCount, 0)
+    }
+    
+    /// 4: what shd happen when deletion is successful? - Insert new items in the cache
+    func test_save_requestNewCacheInsertionOnSuccessfulDeletion() {
+        let (sut, store) = makeSUT()
+        let items = [uniqueFeedItem(), uniqueFeedItem()]
+        sut.save(items)
+        store.completeDeletionSuccessfully()
+        XCTAssertEqual(store.insertCallCount, 1)
     }
     
     //MARK: - Helper
