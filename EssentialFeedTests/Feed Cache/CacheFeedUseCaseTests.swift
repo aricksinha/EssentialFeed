@@ -73,15 +73,6 @@ final class CacheFeedUseCaseTests: XCTestCase {
         XCTAssertEqual(store.insertions.count, 0)
     }
     
-    /// 4: what shd happen when deletion is successful? - Insert new items in the cache
-    func test_save_requestNewCacheInsertionOnSuccessfulDeletion() {
-        let (sut, store) = makeSUT()
-        let items = [uniqueFeedItem(), uniqueFeedItem()]
-        sut.save(items)
-        store.completeDeletionSuccessfully()
-        XCTAssertEqual(store.insertions.count, 1)
-    }
-    
     /// 5: timestamp the new cache b4 storing it
     func test_save_requestNewCacheInsertionWithTimeStampOnSuccessfulDeletion() {
         let timestamp = Date()
