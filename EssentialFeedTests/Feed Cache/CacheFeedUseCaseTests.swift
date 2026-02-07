@@ -10,8 +10,10 @@ import EssentialFeed
 
 final class FeedStore {
     typealias DeletionCompletion = (Error?) -> Void
+    typealias InsertionCompletion = (Error?) -> Void
     
     var deletionCompletions = [DeletionCompletion]()
+    var insertionCompletions = [InsertionCompletion]()
     enum ReceivedMessage: Equatable {
       case deleteCachedFeed
       case insert([FeedItem], Date)
@@ -27,11 +29,20 @@ final class FeedStore {
         deletionCompletions[index](error)
     }
     
+    func completeInsertion(with error: Error, index: Int = 0) {
+        insertionCompletions[index](error)
+    }
+    
     func completeDeletionSuccessfully(at index: Int = 0) {
         deletionCompletions[index](nil)
     }
     
-    func insert(_ items: [FeedItem], timestamp: Date) {
+    func insert(
+        _ items: [FeedItem],
+        timestamp: Date,
+        completion: @escaping InsertionCompletion
+    ) {
+        insertionCompletions.append(completion)
         receivedMessages.append(.insert(items, timestamp))
     }
 }
@@ -46,9 +57,15 @@ class LocalFeedLoader {
     
     func save(_ items: [FeedItem], completion: @escaping (Error?) -> Void) {
         store.deleteCachedFeed { [unowned self] error in
-            completion(error)
             if error == nil {
-                self.store.insert(items, timestamp: self.currentDate())
+                self.store.insert(
+                    items,
+                    timestamp: self.currentDate(),
+                    completion: completion
+                )
+            } else {
+                /// when u don't have error - we need to store / insert items
+                completion(error)
             }
         }
     }
@@ -90,6 +107,7 @@ final class CacheFeedUseCaseTests: XCTestCase {
         XCTAssertEqual(store.receivedMessages, [.deleteCachedFeed, .insert(items, timestamp)])
     }
     
+    /// 6: What shd save() do on Deletion error? - just deliver an error, error occurred operations stopped & since those operations are sync we can also pass a block in save() where we can receive error
     func test_save_failsOnDeletionError() {
         let (sut, store) = makeSUT()
         let items = [uniqueFeedItem(), uniqueFeedItem()]
@@ -103,6 +121,24 @@ final class CacheFeedUseCaseTests: XCTestCase {
         store.completeDeletion(with: deletionError)
         wait(for: [exp], timeout: 1.0)
         XCTAssertEqual(receivedError as NSError?, deletionError)
+    }
+    
+    /// 7: What happens when cache fails to insert items -acc to use-case we need to deliver error
+    func test_save_failsOnInsertionError() {
+        let (sut, store) = makeSUT()
+        let items = [uniqueFeedItem(), uniqueFeedItem()]
+        let insertionError = anyNSError()
+        var receivedError: Error?
+        let exp = expectation(description: "Wait for save completion")
+        sut.save(items) { error in
+            receivedError = error
+            exp.fulfill()
+        }
+        /// first deletion needed
+        store.completeDeletionSuccessfully()
+        store.completeInsertion(with: insertionError)
+        wait(for: [exp], timeout: 1.0)
+        XCTAssertEqual(receivedError as NSError?, insertionError)
     }
     
     //MARK: - Helper
