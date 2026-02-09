@@ -32,19 +32,21 @@ class LocalFeedLoader {
     func save(_ items: [FeedItem], completion: @escaping (Error?) -> Void) {
         store.deleteCachedFeed { [weak self] error in
             guard let self = self else { return }
-            if error == nil {
+            
+            if let cacheDeletionError = error {
+                /// this block says there is an error
+                completion(error)
+            } else {
+                /// there is no error so complete insertion
                 self.store.insert(
                     items,
                     timestamp: self.currentDate(),
                     completion: { [weak self] error in
                         /// if LocalFeedLoader is deallocated - don't let the code block to execute anymore
-                        guard let self != nil else { return }
+                        guard self != nil else { return }
                         completion(error)
                     }
                 )
-            } else {
-                /// when u don't have error - we need to store / insert items
-                completion(error)
             }
         }
     }
