@@ -90,7 +90,7 @@ final class CacheFeedUseCaseTests: XCTestCase {
         )
         
         /// Action
-        var receivedResults = [Error?]()
+        var receivedResults = [LocalFeedLoader.SaveResult]()
         sut?.save([uniqueFeedItem()], completion: { result in
             receivedResults.append(result)
         })
@@ -112,7 +112,7 @@ final class CacheFeedUseCaseTests: XCTestCase {
         )
         
         /// Action
-        var receivedResults = [Error?]()
+        var receivedResults = [LocalFeedLoader.SaveResult]()
         sut?.save([uniqueFeedItem()], completion: { result in
             receivedResults.append(result)
         })
