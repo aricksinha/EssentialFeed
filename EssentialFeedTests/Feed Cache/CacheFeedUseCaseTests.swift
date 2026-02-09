@@ -36,7 +36,11 @@ class LocalFeedLoader {
                 self.store.insert(
                     items,
                     timestamp: self.currentDate(),
-                    completion: completion
+                    completion: { [weak self] error in
+                        /// if LocalFeedLoader is deallocated - don't let the code block to execute anymore
+                        guard let self != nil else { return }
+                        completion(error)
+                    }
                 )
             } else {
                 /// when u don't have error - we need to store / insert items
@@ -131,6 +135,29 @@ final class CacheFeedUseCaseTests: XCTestCase {
         /// complete deletion with error after sut deallocated
         sut = nil
         store.completeDeletion(with: anyNSError())
+        
+        /// receivedResults should be emoty
+        XCTAssertTrue(receivedResults.isEmpty)
+    }
+    
+    func test_save_doesNotDeliverInsertionErrorAfterSUTInstanceHasBeenDeallocated() {
+        let store = FeedStoreSpy()
+        /// optional ref to sut as its to be deallocated later
+        var sut: LocalFeedLoader? = LocalFeedLoader(
+            store: store,
+            currentDate: Date.init
+        )
+        
+        /// Action
+        var receivedResults = [Error?]()
+        sut?.save([uniqueFeedItem()], completion: { result in
+            receivedResults.append(result)
+        })
+        
+        store.completeDeletionSuccessfully()
+        /// complete insertion with error after sut deallocated
+        sut = nil
+        store.completeInsertion(with: anyNSError())
         
         /// receivedResults should be emoty
         XCTAssertTrue(receivedResults.isEmpty)
