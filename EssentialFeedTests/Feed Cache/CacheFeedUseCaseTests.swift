@@ -30,7 +30,8 @@ class LocalFeedLoader {
     }
     
     func save(_ items: [FeedItem], completion: @escaping (Error?) -> Void) {
-        store.deleteCachedFeed { [unowned self] error in
+        store.deleteCachedFeed { [weak self] error in
+            guard let self = self else { return }
             if error == nil {
                 self.store.insert(
                     items,
@@ -109,6 +110,30 @@ final class CacheFeedUseCaseTests: XCTestCase {
             store.completeDeletionSuccessfully()
             store.completeInsertionSuccessfully()
         }
+    }
+    
+    /// 9: when we are at process of saving & instance is deallocated- we don't want the completion block to be invoked
+    /// here we chose for deletion error coz its one of the path to invoke completion
+    func test_save_doesNotDeliverDeletionErrorAfterSUTInstanceHasBeenDeallocated() {
+        let store = FeedStoreSpy()
+        /// optional ref to sut as its to be deallocated later
+        var sut: LocalFeedLoader? = LocalFeedLoader(
+            store: store,
+            currentDate: Date.init
+        )
+        
+        /// Action
+        var receivedResults = [Error?]()
+        sut?.save([uniqueFeedItem()], completion: { result in
+            receivedResults.append(result)
+        })
+        
+        /// complete deletion with error after sut deallocated
+        sut = nil
+        store.completeDeletion(with: anyNSError())
+        
+        /// receivedResults should be emoty
+        XCTAssertTrue(receivedResults.isEmpty)
     }
     
     //MARK: - Helper
