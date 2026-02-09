@@ -38,17 +38,21 @@ class LocalFeedLoader {
                 completion(error)
             } else {
                 /// there is no error so complete insertion
-                self.store.insert(
-                    items,
-                    timestamp: self.currentDate(),
-                    completion: { [weak self] error in
-                        /// if LocalFeedLoader is deallocated - don't let the code block to execute anymore
-                        guard self != nil else { return }
-                        completion(error)
-                    }
-                )
+                self.cache(items, with: completion)
             }
         }
+    }
+    
+    private func cache(
+        _ items: [FeedItem],
+        with completion: @escaping ( Error?) -> Void
+    ) {
+        store.insert(items, timestamp: self.currentDate(), completion: { [weak self] error in
+                /// if LocalFeedLoader is deallocated - don't let the code block to execute anymore
+                guard self != nil else { return }
+                completion(error)
+            }
+        )
     }
 }
 
