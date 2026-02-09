@@ -13,49 +13,6 @@ enum Result {
     case failure(Error)
 }
 
-protocol FeedStore {
-    typealias DeletionCompletion = (Error?) -> Void
-    typealias InsertionCompletion = (Error?) -> Void
-    func deleteCachedFeed(completion: @escaping DeletionCompletion)
-    func insert(_ items: [FeedItem], timestamp: Date,completion: @escaping InsertionCompletion
-    )
-}
-
-class LocalFeedLoader {
-    private let store: FeedStore
-    private let currentDate: () -> Date
-    init(store: FeedStore, currentDate: @escaping () -> Date) {
-        self.store = store
-        self.currentDate = currentDate
-    }
-    
-    func save(_ items: [FeedItem], completion: @escaping (Error?) -> Void) {
-        store.deleteCachedFeed { [weak self] error in
-            guard let self = self else { return }
-            
-            if let cacheDeletionError = error {
-                /// this block says there is an error
-                completion(error)
-            } else {
-                /// there is no error so complete insertion
-                self.cache(items, with: completion)
-            }
-        }
-    }
-    
-    private func cache(
-        _ items: [FeedItem],
-        with completion: @escaping ( Error?) -> Void
-    ) {
-        store.insert(items, timestamp: self.currentDate(), completion: { [weak self] error in
-                /// if LocalFeedLoader is deallocated - don't let the code block to execute anymore
-                guard self != nil else { return }
-                completion(error)
-            }
-        )
-    }
-}
-
 final class CacheFeedUseCaseTests: XCTestCase {
 
     /// 1: test to check we don't delete the cache upon FeedStore creation
