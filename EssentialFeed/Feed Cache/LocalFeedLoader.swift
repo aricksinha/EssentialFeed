@@ -21,7 +21,7 @@ public final class LocalFeedLoader {
             
             if let cacheDeletionError = error {
                 /// this block says there is an error
-                completion(error)
+                completion(cacheDeletionError)
             } else {
                 /// there is no error so complete insertion
                 self.cache(items, with: completion)
@@ -40,12 +40,4 @@ public final class LocalFeedLoader {
             }
         )
     }
-}
-
-public protocol FeedStore {
-    typealias DeletionCompletion = (Error?) -> Void
-    typealias InsertionCompletion = (Error?) -> Void
-    func deleteCachedFeed(completion: @escaping DeletionCompletion)
-    func insert(_ items: [FeedItem], timestamp: Date,completion: @escaping InsertionCompletion
-    )
 }
