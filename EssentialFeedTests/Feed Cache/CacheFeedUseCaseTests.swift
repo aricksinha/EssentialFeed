@@ -44,9 +44,16 @@ final class CacheFeedUseCaseTests: XCTestCase {
         let timestamp = Date()
         let (sut, store) = makeSUT{ timestamp }
         let items = [uniqueFeedItem(), uniqueFeedItem()]
+        let localItems = items.map{  LocalFeedItem(
+            id: $0.id,
+            description: $0.description,
+            location: $0.location,
+            imageURL: $0.imageURL
+        )
+        }
         sut.save(items){ _ in }
         store.completeDeletionSuccessfully()
-        XCTAssertEqual(store.receivedMessages, [.deleteCachedFeed, .insert(items, timestamp)])
+        XCTAssertEqual(store.receivedMessages, [.deleteCachedFeed, .insert(localItems, timestamp)])
     }
     
     /// 6: What shd save() do on Deletion error? - just deliver an error, error occurred operations stopped & since those operations are sync we can also pass a block in save() where we can receive error
@@ -175,7 +182,7 @@ final class CacheFeedUseCaseTests: XCTestCase {
         var insertionCompletions = [InsertionCompletion]()
         enum ReceivedMessage: Equatable {
           case deleteCachedFeed
-          case insert([FeedItem], Date)
+          case insert([LocalFeedItem], Date)
         }
         
         private(set) var receivedMessages = [ReceivedMessage]()
@@ -197,7 +204,7 @@ final class CacheFeedUseCaseTests: XCTestCase {
         }
         
         func insert(
-            _ items: [FeedItem],
+            _ items: [LocalFeedItem],
             timestamp: Date,
             completion: @escaping InsertionCompletion
         ) {
