@@ -13,38 +13,6 @@ enum Result {
     case failure(Error)
 }
 
-protocol FeedStore {
-    typealias DeletionCompletion = (Error?) -> Void
-    typealias InsertionCompletion = (Error?) -> Void
-    func deleteCachedFeed(completion: @escaping DeletionCompletion)
-    func insert(_ items: [FeedItem], timestamp: Date,completion: @escaping InsertionCompletion
-    )
-}
-
-class LocalFeedLoader {
-    private let store: FeedStore
-    private let currentDate: () -> Date
-    init(store: FeedStore, currentDate: @escaping () -> Date) {
-        self.store = store
-        self.currentDate = currentDate
-    }
-    
-    func save(_ items: [FeedItem], completion: @escaping (Error?) -> Void) {
-        store.deleteCachedFeed { [unowned self] error in
-            if error == nil {
-                self.store.insert(
-                    items,
-                    timestamp: self.currentDate(),
-                    completion: completion
-                )
-            } else {
-                /// when u don't have error - we need to store / insert items
-                completion(error)
-            }
-        }
-    }
-}
-
 final class CacheFeedUseCaseTests: XCTestCase {
 
     /// 1: test to check we don't delete the cache upon FeedStore creation
@@ -109,6 +77,53 @@ final class CacheFeedUseCaseTests: XCTestCase {
             store.completeDeletionSuccessfully()
             store.completeInsertionSuccessfully()
         }
+    }
+    
+    /// 9: when we are at process of saving & instance is deallocated- we don't want the completion block to be invoked
+    /// here we chose for deletion error coz its one of the path to invoke completion
+    func test_save_doesNotDeliverDeletionErrorAfterSUTInstanceHasBeenDeallocated() {
+        let store = FeedStoreSpy()
+        /// optional ref to sut as its to be deallocated later
+        var sut: LocalFeedLoader? = LocalFeedLoader(
+            store: store,
+            currentDate: Date.init
+        )
+        
+        /// Action
+        var receivedResults = [LocalFeedLoader.SaveResult]()
+        sut?.save([uniqueFeedItem()], completion: { result in
+            receivedResults.append(result)
+        })
+        
+        /// complete deletion with error after sut deallocated
+        sut = nil
+        store.completeDeletion(with: anyNSError())
+        
+        /// receivedResults should be emoty
+        XCTAssertTrue(receivedResults.isEmpty)
+    }
+    
+    func test_save_doesNotDeliverInsertionErrorAfterSUTInstanceHasBeenDeallocated() {
+        let store = FeedStoreSpy()
+        /// optional ref to sut as its to be deallocated later
+        var sut: LocalFeedLoader? = LocalFeedLoader(
+            store: store,
+            currentDate: Date.init
+        )
+        
+        /// Action
+        var receivedResults = [LocalFeedLoader.SaveResult]()
+        sut?.save([uniqueFeedItem()], completion: { result in
+            receivedResults.append(result)
+        })
+        
+        store.completeDeletionSuccessfully()
+        /// complete insertion with error after sut deallocated
+        sut = nil
+        store.completeInsertion(with: anyNSError())
+        
+        /// receivedResults should be emoty
+        XCTAssertTrue(receivedResults.isEmpty)
     }
     
     //MARK: - Helper
