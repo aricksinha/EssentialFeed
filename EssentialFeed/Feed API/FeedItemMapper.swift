@@ -7,15 +7,6 @@
 
 import Foundation
 
-/// Item is internal represntation of Feed API module (DTO)
-internal struct RemoteFeedItem: Decodable {
-    internal let id: UUID
-    internal let description: String?
-    internal let location: String?
-    /// this ** Item ** has right name that matches API JSON Representation
-    internal let image: URL
-}
-
 /// FeeditemMapper internal to this module , not accessible from any other module
 internal final class FeedItemsMapper {
     private struct Root: Decodable {
