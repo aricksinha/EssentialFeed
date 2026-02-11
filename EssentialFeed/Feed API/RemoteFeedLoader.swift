@@ -31,14 +31,32 @@ public final class RemoteFeedLoader: FeedLoader {
     public func load(completion: @escaping (Result) -> Void)  {
         /// client calling with its completion handler and inside the closure contains the mapping from CLIENT Error -> DOMAIN Error
         client.get(from: url) { [weak self] result in
-            guard let self = self else { return }
+            guard self != nil else { return }
             switch result {
             case .success(let data, let response):
-                completion(FeedItemsMapper.map(data, response: response))
+                let result = RemoteFeedLoader.map(data, from: response)
+               completion(result)
             case .failure:
                 /// this Error is Domain specific error
                 completion(.failure(Error.connectivity))
             }
+        }
+    }
+    
+    private static func map(_ data: Data, from response: HTTPURLResponse) -> Result {
+        do {
+            let remoteFeedItems = try FeedItemsMapper.map(data, response: response)
+             return .success(remoteFeedItems.toModels())
+        } catch {
+            return .failure(error)
+        }
+    }
+}
+
+private extension Array where Element == RemoteFeedItem {
+    func toModels() -> [FeedItem] {
+       return self.map{
+            FeedItem(id: $0.id, description: $0.description, location: $0.location, imageURL: $0.image)
         }
     }
 }
