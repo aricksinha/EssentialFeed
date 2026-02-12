@@ -20,8 +20,24 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
     /// receivedMessage should have .retrive message type when we invoke load() from sut(LocalFeedLoader)
     func test_load_requestCacheRetrieval() {
         let (sut, store) = makeSUT()
-        sut.load()
+        sut.load{ _ in }
         XCTAssertEqual(store.receivedMessages, [.retrieve])
+    }
+    
+    /// 3. when we request cache retrieval, for ex- Error course(sad path) - system delivers error
+    /// load() needs to receive a error in a completion closure arg
+    func test_load_failsOnRetrievalError() {
+        let (sut, store) = makeSUT()
+        let retrievalError = anyNSError()
+        var receivedError: Error?
+        let exp = expectation(description: "Wait for completion")
+        sut.load { error in
+            receivedError = error
+            exp.fulfill()
+        }
+        store.completeRetrieval(with: retrievalError)
+        wait(for: [exp], timeout: 1.0)
+        XCTAssertEqual(receivedError as NSError?, retrievalError)
     }
     
     //MARK: - Helper
@@ -35,5 +51,9 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
         trackForMemoryLeak(store, file: file, line: line)
         trackForMemoryLeak(sut, file: file, line: line)
         return (sut, store)
+    }
+    
+    private func anyNSError() -> NSError {
+        return NSError(domain: "any-error", code: 0)
     }
 }

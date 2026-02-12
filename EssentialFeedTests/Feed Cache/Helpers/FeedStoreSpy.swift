@@ -19,6 +19,7 @@ final class FeedStoreSpy: FeedStore {
     }
     
     private(set) var receivedMessages = [ReceivedMessage]()
+    //MARK: - Cache Feed UseCase
     func deleteCachedFeed(completion: @escaping DeletionCompletion) {
         deletionCompletions.append(completion)
         receivedMessages.append(.deleteCachedFeed)
@@ -49,7 +50,13 @@ final class FeedStoreSpy: FeedStore {
         insertionCompletions[index](nil)
     }
     
-    func retrieve() {
+    //MARK: - Load Feed From Cache UseCase
+    func retrieve(completion: @escaping (Error?) -> Void) {
+        retrievalCompletions.append(completion)
         receivedMessages.append(.retrieve)
+    }
+    
+    func completeRetrieval(with error: Error, index: Int = 0) {
+        retrievalCompletions[index](error)
     }
 }

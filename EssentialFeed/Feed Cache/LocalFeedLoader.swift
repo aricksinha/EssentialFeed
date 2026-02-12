@@ -44,8 +44,8 @@ public final class LocalFeedLoader {
     }
     
     //MARK: -  Load Feed From Cache UseCase
-    public func load() {
-        store.retrieve()
+    public func load(completion: @escaping (Error?) -> Void) {
+        store.retrieve(completion: completion)
     }
 }
 
