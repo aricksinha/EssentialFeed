@@ -12,9 +12,16 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
     
     /// 1: test to check we don't store  the cache upon FeedStore creation
     func test_init_doesNotMessageStoreUponCreation() {
+        let (_, store) = makeSUT()
+        XCTAssertEqual(store.receivedMessages, [])
+    }
+    
+    /// 2: when we load we request cache retrieval
+    /// receivedMessage should have .retrive message type when we invoke load() from sut(LocalFeedLoader)
+    func test_load_requestCacheRetrieval() {
         let (sut, store) = makeSUT()
         sut.load()
-        XCTAssertEqual(store.receivedMessages, [])
+        XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
     
     //MARK: - Helper
