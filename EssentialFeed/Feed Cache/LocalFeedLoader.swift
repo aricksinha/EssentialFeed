@@ -46,14 +46,11 @@ public final class LocalFeedLoader {
     
     //MARK: -  Load Feed From Cache UseCase
     public func load(completion: @escaping (LoadResult) -> Void) {
-        store.retrieve { result in
-            switch result {
-            case .empty:
-                completion(.success([]))
-            case .found(feed: let localFeeds, _):
-                completion(.success(localFeeds.toModels()))
-            case .failure(let error):
+        store.retrieve { error in
+            if let error = error {
                 completion(.failure(error))
+            } else {
+                completion(.success([]))
             }
         }
     }
@@ -68,14 +65,6 @@ extension Array where Element == FeedImage {
                 location: $0.location,
                 url: $0.url
             )
-        }
-    }
-}
-
-private extension Array where Element == LocalFeedImage {
-    func toModels() -> [FeedImage] {
-       return self.map{
-           FeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url)
         }
     }
 }
