@@ -10,8 +10,12 @@ import Foundation
 public final class LocalFeedLoader {
     private let store: FeedStore
     private let currentDate: () -> Date
-    
+    private let calender = Calendar(identifier: .gregorian)
+    private var maxCacheAgeInDays: Int {
+        return 7
+    }
     public typealias SaveResult = Error?
+    public typealias LoadResult = LoadFeedResult
     public init(store: FeedStore, currentDate: @escaping () -> Date) {
         self.store = store
         self.currentDate = currentDate
@@ -42,6 +46,27 @@ public final class LocalFeedLoader {
             }
         )
     }
+    
+    //MARK: -  Load Feed From Cache UseCase
+    public func load(completion: @escaping (LoadResult) -> Void) {
+        store.retrieve { [unowned self] result in
+            switch result {
+            case .failure(let error):
+                completion(.failure(error))
+            case .found(feed: let feed, timestamp: let timestamp) where self.validate(timestamp):
+                completion(.success(feed.toModels()))
+            case .found, .empty:
+                completion(.success([]))
+            }
+        }
+    }
+    
+    private func validate(_ timestamp: Date) -> Bool {
+        guard let maxCacheAge = calender.date(byAdding: .day, value: maxCacheAgeInDays, to: timestamp) else {
+            return false
+        }
+        return currentDate() < maxCacheAge
+    }
 }
 
 extension Array where Element == FeedImage {
@@ -53,6 +78,14 @@ extension Array where Element == FeedImage {
                 location: $0.location,
                 url: $0.url
             )
+        }
+    }
+}
+
+private extension Array where Element == LocalFeedImage {
+    func toModels() -> [FeedImage] {
+       return self.map{
+           FeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url)
         }
     }
 }
