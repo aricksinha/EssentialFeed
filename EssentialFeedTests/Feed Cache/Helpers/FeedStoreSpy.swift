@@ -51,16 +51,20 @@ final class FeedStoreSpy: FeedStore {
     }
     
     //MARK: - Load Feed From Cache UseCase
-    func retrieve(completion: @escaping (Error?) -> Void) {
+    func retrieve(completion: @escaping RetrievalCompletion) {
         retrievalCompletions.append(completion)
         receivedMessages.append(.retrieve)
     }
     
     func completeRetrieval(with error: Error, index: Int = 0) {
-        retrievalCompletions[index](error)
+        retrievalCompletions[index](.failure(error))
     }
     
     func completeRetrievalWithEmptyCache(index: Int = 0) {
-        retrievalCompletions[index](nil)
+        retrievalCompletions[index](.empty)
+    }
+
+    func completeRetrieval(with feedLocals: [LocalFeedImage], timestamp: Date, index: Int = 0) {
+        retrievalCompletions[index](.found(feed: feedLocals, timestamp: timestamp))
     }
 }
