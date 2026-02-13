@@ -87,6 +87,17 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
     }
 
+    /// 9: on load() when we get .success(emptyCache), don't delete cache
+    func test_load_doesNotDeletesCacheOnEmptyCache() {
+        let (sut, store) = makeSUT()
+        /// here we don't care abt result from load
+        sut.load { _ in }
+        /// we care what happened to store
+        store.completeRetrievalWithEmptyCache()
+
+        XCTAssertEqual(store.receivedMessages, [.retrieve])
+    }
+
     //MARK: - Helper
     private func makeSUT(
         currentDate: @escaping () -> Date = Date.init,
