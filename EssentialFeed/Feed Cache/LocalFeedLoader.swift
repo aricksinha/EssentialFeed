@@ -20,7 +20,10 @@ public final class LocalFeedLoader {
         self.store = store
         self.currentDate = currentDate
     }
-    
+}
+
+//MARK: - Cache Feed UseCase
+extension LocalFeedLoader {
     public func save(_ feed: [FeedImage], completion: @escaping (SaveResult) -> Void) {
         store.deleteCachedFeed { [weak self] error in
             guard let self = self else { return }
@@ -46,8 +49,10 @@ public final class LocalFeedLoader {
             }
         )
     }
-    
-    //MARK: -  Load Feed From Cache UseCase
+}
+
+//MARK: -  Load Feed From Cache UseCase
+extension LocalFeedLoader {
     public func load(completion: @escaping (LoadResult) -> Void) {
         store.retrieve { [weak self] result in
             guard let self = self else { return }
@@ -63,7 +68,10 @@ public final class LocalFeedLoader {
             }
         }
     }
-    
+}
+
+//MARK: -  Validate Cache UseCase
+extension LocalFeedLoader {
     public func validateCache() {
         store.retrieve { [weak self] result in
             guard let self = self else { return }
@@ -76,7 +84,6 @@ public final class LocalFeedLoader {
             case .empty, .found: break
             }
         }
-        
     }
     
     private func validate(_ timestamp: Date) -> Bool {
