@@ -76,15 +76,15 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
         }
     }
     
-    /// 8: when cache is retrieved and its gives error then delete cache
-    func test_load_deletesCacheOnRetrievalError() {
+    /// 8: when cache is retrieved and its gives error
+    func test_load_HasNoSideEffectsOnRetrievalError() {
         let (sut, store) = makeSUT()
         /// here we don't care abt result from load
         sut.load { _ in }
         /// we care what happened to store
         store.completeRetrieval(with: anyNSError())
         
-        XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
+        XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
 
     /// 9: on load() when we get .success(emptyCache), don't delete cache
