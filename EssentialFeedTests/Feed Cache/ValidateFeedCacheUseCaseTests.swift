@@ -48,7 +48,34 @@ final class ValidateFeedCacheUseCaseTests: XCTestCase {
         /// we care what happened to store
         store.completeRetrieval(with: feed.local, timestamp: lessThanSevenDaysOld)
 
-        XCTAssertEqual(store.receivedMessages, [.retrieve])
+        XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
+    }
+    
+    /// 5: on validate cache when our cacheAge equal to 7 days-shd delete cache
+    func test_load_deletesCacheOnEqualToSevenDaysOldCache() {
+        let feed = uniqueImageFeed()
+        let fixedCurrentDate = Date()
+        let sevenDaysOldCache = fixedCurrentDate.adding(days: -7)
+        let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
+        sut.validateCache()
+        /// we care what happened to store
+        store.completeRetrieval(with: feed.local, timestamp: sevenDaysOldCache)
+
+        XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
+    }
+    
+    /// 12: on validate cache when our cacheAge equal to 7 days-shoul delete cache
+    func test_load_deleteCacheOnMoreThanSevenDaysOldCache() {
+        let feed = uniqueImageFeed()
+        let fixedCurrentDate = Date()
+        let moreThanSevenDaysOldCache = fixedCurrentDate.adding(days: -7).adding(days: -2)
+        let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
+        
+        sut.validateCache()
+        /// we care what happened to store
+        store.completeRetrieval(with: feed.local, timestamp: moreThanSevenDaysOldCache)
+
+        XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
     }
     
     //MARK: - Helper
