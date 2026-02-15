@@ -15,6 +15,17 @@ public final class LocalFeedLoader {
         self.store = store
         self.currentDate = currentDate
     }
+    
+    private var maxCacheAgeInDays: Int {
+        return 7
+    }
+    
+    private func validate(_ timestamp: Date) -> Bool {
+        guard let maxCacheAge = calender.date(byAdding: .day, value: maxCacheAgeInDays, to: timestamp) else {
+            return false
+        }
+        return currentDate() < maxCacheAge
+    }
 }
 
 //MARK: - Cache Feed UseCase
@@ -69,9 +80,6 @@ extension LocalFeedLoader: FeedLoader {
 
 //MARK: -  Validate Cache UseCase
 extension LocalFeedLoader {
-    private var maxCacheAgeInDays: Int {
-        return 7
-    }
     public func validateCache() {
         store.retrieve { [weak self] result in
             guard let self = self else { return }
@@ -84,13 +92,6 @@ extension LocalFeedLoader {
             case .empty, .found: break
             }
         }
-    }
-    
-    private func validate(_ timestamp: Date) -> Bool {
-        guard let maxCacheAge = calender.date(byAdding: .day, value: maxCacheAgeInDays, to: timestamp) else {
-            return false
-        }
-        return currentDate() < maxCacheAge
     }
 }
 
