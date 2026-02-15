@@ -10,7 +10,7 @@ import EssentialFeed
 
 final class LoadFeedFromCacheUseCaseTests: XCTestCase {
     
-    /// 1: test to check we don't store  the cache upon FeedStore creation
+    /// 1: test to check we don't store  the cache upon FeedStore creation(context- load cache)
     func test_init_doesNotMessageStoreUponCreation() {
         let (_, store) = makeSUT()
         XCTAssertEqual(store.receivedMessages, [])
@@ -76,19 +76,19 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
         }
     }
     
-    /// 8: when cache is retrieved and its gives error then delete cache
-    func test_load_deletesCacheOnRetrievalError() {
+    /// 8: when cache is retrieved and its gives error
+    func test_load_HasNoSideEffectsOnRetrievalError() {
         let (sut, store) = makeSUT()
         /// here we don't care abt result from load
         sut.load { _ in }
         /// we care what happened to store
         store.completeRetrieval(with: anyNSError())
         
-        XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
+        XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
 
-    /// 9: on load() when we get .success(emptyCache), don't delete cache
-    func test_load_doesNotDeletesCacheOnEmptyCache() {
+    /// 9: on load() when we get .success(emptyCache)- query only
+    func test_load_HasNoSideEffectsOnEmptyCache() {
         let (sut, store) = makeSUT()
         /// here we don't care abt result from load
         sut.load { _ in }
@@ -98,8 +98,8 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
 
-    /// 10: on load() when our cacheAge less than 7 days- don't delete cache
-    func test_load_doesNotDeletesCacheOnLessThanSevenDaysOldCache() {
+    /// 10: on load() when our cacheAge less than 7 days - has no sideEffect
+    func test_load_HasNoSideEffectsOnLessThanSevenDaysOldCache() {
         let feed = uniqueImageFeed()
         let fixedCurrentDate = Date()
         let lessThanSevenDaysOld = fixedCurrentDate.adding(days: -7).adding(seconds: 1)
@@ -112,8 +112,8 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
 
-    /// 11: on load() when our cacheAge equal to 7 days-shd delete cache
-    func test_load_deletesCacheOnEqualToSevenDaysOldCache() {
+    /// 11: on load() when our cacheAge equal to 7 days- has no side-eefect
+    func test_load_HasNoSideEffectEqualToSevenDaysOldCache() {
         let feed = uniqueImageFeed()
         let fixedCurrentDate = Date()
         let sevenDaysOldCache = fixedCurrentDate.adding(days: -7)
@@ -123,11 +123,11 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
         /// we care what happened to store
         store.completeRetrieval(with: feed.local, timestamp: sevenDaysOldCache)
 
-        XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
+        XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
 
-    /// 12: on load() when our cacheAge equal to 7 days-shd delete cache
-    func test_load_deletesCacheOnMoreThanSevenDaysOldCache() {
+    /// 12: on load() when our cacheAge equal to 7 days-has no side-eefect
+    func test_load_hasNoSideEffectOnMoreThanSevenDaysOldCache() {
         let feed = uniqueImageFeed()
         let fixedCurrentDate = Date()
         let moreThanSevenDaysOldCache = fixedCurrentDate.adding(days: -7).adding(days: -2)
@@ -137,7 +137,7 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
         /// we care what happened to store
         store.completeRetrieval(with: feed.local, timestamp: moreThanSevenDaysOldCache)
 
-        XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
+        XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
 
     func test_doesNotDeliverAfterSUTHaveBeenDeallocated() {
@@ -191,35 +191,5 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
         }
         action()
         wait(for: [exp], timeout: 1.0)
-    }
-    
-    private func anyNSError() -> NSError {
-        return NSError(domain: "any-error", code: 0)
-    }
-
-    private func uniqueImage() -> FeedImage {
-        return FeedImage(id: UUID(), description: "any", location: "any", url: anyURL())
-    }
-
-    private func uniqueImageFeed() -> (models: [FeedImage], local: [LocalFeedImage]) {
-        let models = [uniqueImage(), uniqueImage()]
-        let locals = models.map {
-            LocalFeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url)
-        }
-        return (models, locals)
-    }
-
-    private func anyURL() -> URL {
-        return URL(string: "http://any-url.com")!
-    }
-}
-
-private extension Date {
-    func adding(days: Int) -> Date {
-        return Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: self)!
-    }
-
-    func adding(seconds: TimeInterval) -> Date {
-        return self + seconds
     }
 }
