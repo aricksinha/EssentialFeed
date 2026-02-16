@@ -41,40 +41,6 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
             store.completeRetrievalWithEmptyCache()
         }
     }
-
-    /// 5: cache expiry error case(system validates the cache less than 7 days old) - system deletes cache + delivers no feed images
-    /// lets test happy path for this scenario
-    func test_load_deliversCacheImagesOnLessThanSevenDaysOldCache() {
-        let (feedModels, feedLocals) = uniqueImageFeed()
-        let fixedCurrentDate = Date()
-        let lessThanSevenDaysOld = fixedCurrentDate.adding(days: -7).adding(seconds: 1)
-        let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
-        expect(sut, toCompleteFrom: .success(feedModels)) {
-            store.completeRetrieval(with: feedLocals, timestamp: lessThanSevenDaysOld)
-        }
-    }
-    
-    /// 6: when cache is 7 days old: system deletes cache + delivers no feed images
-    func test_load_deliversCacheNoImagesOnSevenDaysOldCache() {
-        let (_, feedLocals) = uniqueImageFeed()
-        let fixedCurrentDate = Date()
-        let sevenDaysOldTimestamp = fixedCurrentDate.adding(days: -7)
-        let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
-        expect(sut, toCompleteFrom: .success([])) {
-            store.completeRetrieval(with: feedLocals, timestamp: sevenDaysOldTimestamp)
-        }
-    }
-    
-    /// 7: when cache is more than 7 days old
-    func test_load_deliversCacheNoImagesOnMoreThanSevenDaysOldCache() {
-        let (_, feedLocals) = uniqueImageFeed()
-        let fixedCurrentDate = Date()
-        let moreThansevenDaysOldTimestamp = fixedCurrentDate.adding(days: -7).adding(seconds: -2)
-        let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
-        expect(sut, toCompleteFrom: .success([])) {
-            store.completeRetrieval(with: feedLocals, timestamp: moreThansevenDaysOldTimestamp)
-        }
-    }
     
     /// 8: when cache is retrieved and its gives error
     func test_load_HasNoSideEffectsOnRetrievalError() {
@@ -130,7 +96,7 @@ final class LoadFeedFromCacheUseCaseTests: XCTestCase {
     func test_load_hasNoSideEffectOnExpiredCache() {
         let feed = uniqueImageFeed()
         let fixedCurrentDate = Date()
-        let expiredTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(days: -2)
+        let expiredTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(seconds: -2)
         let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
         /// here we don't care abt result from load
         sut.load { _ in }

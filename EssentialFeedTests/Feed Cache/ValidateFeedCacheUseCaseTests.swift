@@ -39,7 +39,7 @@ final class ValidateFeedCacheUseCaseTests: XCTestCase {
     }
     
     /// 4: on validate cache- when our cacheAge is with maxCacheDays limit- don't delete cache
-    func test_load_deliversCachedImagesOnNonExpiredCache() {
+    func test_validateCache_deliversCachedImagesOnNonExpiredCache() {
         let feed = uniqueImageFeed()
         let fixedCurrentDate = Date()
         let nonExpiredTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(seconds: 1)
@@ -52,7 +52,7 @@ final class ValidateFeedCacheUseCaseTests: XCTestCase {
     }
     
     /// 5: on validate cache when our cacheAge equal to maxCacheAge-shd delete cache
-    func test_load_deletesCacheOnCacheExpiration() {
+    func test_validateCache_deletesCacheOnCacheExpiration() {
         let feed = uniqueImageFeed()
         let fixedCurrentDate = Date()
         let expirationTimestamp = fixedCurrentDate.minusFeedCacheMaxAge()
@@ -65,10 +65,10 @@ final class ValidateFeedCacheUseCaseTests: XCTestCase {
     }
     
     /// 6: on validate cache when our cacheAge more than maxCacheAge  days-shoul delete cache
-    func test_load_deleteCacheOnExpiredCache() {
+    func test_validateCache_deleteCacheOnExpiredCache() {
         let feed = uniqueImageFeed()
         let fixedCurrentDate = Date()
-        let expiredTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(days: -2)
+        let expiredTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(seconds: -2)
         let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
         
         sut.validateCache()
