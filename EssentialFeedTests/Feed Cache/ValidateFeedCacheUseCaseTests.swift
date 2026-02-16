@@ -38,42 +38,42 @@ final class ValidateFeedCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
     
-    /// 4: on validate cache- when our cacheAge less than 7 days- don't delete cache
-    func test_validateCache_doesNotDeletesOnLessThanSevenDaysOldCache() {
+    /// 4: on validate cache- when our cacheAge is with maxCacheDays limit- don't delete cache
+    func test_load_deliversCachedImagesOnNonExpiredCache() {
         let feed = uniqueImageFeed()
         let fixedCurrentDate = Date()
-        let lessThanSevenDaysOld = fixedCurrentDate.adding(days: -7).adding(seconds: 1)
+        let nonExpiredTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(seconds: 1)
         let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
         sut.validateCache()
         /// we care what happened to store
-        store.completeRetrieval(with: feed.local, timestamp: lessThanSevenDaysOld)
+        store.completeRetrieval(with: feed.local, timestamp: nonExpiredTimestamp)
 
         XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
     
-    /// 5: on validate cache when our cacheAge equal to 7 days-shd delete cache
-    func test_load_deletesCacheOnEqualToSevenDaysOldCache() {
+    /// 5: on validate cache when our cacheAge equal to maxCacheAge-shd delete cache
+    func test_load_deletesCacheOnCacheExpiration() {
         let feed = uniqueImageFeed()
         let fixedCurrentDate = Date()
-        let sevenDaysOldCache = fixedCurrentDate.adding(days: -7)
+        let expirationTimestamp = fixedCurrentDate.minusFeedCacheMaxAge()
         let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
         sut.validateCache()
         /// we care what happened to store
-        store.completeRetrieval(with: feed.local, timestamp: sevenDaysOldCache)
+        store.completeRetrieval(with: feed.local, timestamp: expirationTimestamp)
 
         XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
     }
     
-    /// 6: on validate cache when our cacheAge equal to 7 days-shoul delete cache
-    func test_load_deleteCacheOnMoreThanSevenDaysOldCache() {
+    /// 6: on validate cache when our cacheAge more than maxCacheAge  days-shoul delete cache
+    func test_load_deleteCacheOnExpiredCache() {
         let feed = uniqueImageFeed()
         let fixedCurrentDate = Date()
-        let moreThanSevenDaysOldCache = fixedCurrentDate.adding(days: -7).adding(days: -2)
+        let expiredTimestamp = fixedCurrentDate.minusFeedCacheMaxAge().adding(days: -2)
         let (sut, store) = makeSUT(currentDate: { fixedCurrentDate })
         
         sut.validateCache()
         /// we care what happened to store
-        store.completeRetrieval(with: feed.local, timestamp: moreThanSevenDaysOldCache)
+        store.completeRetrieval(with: feed.local, timestamp: expiredTimestamp)
 
         XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
     }
