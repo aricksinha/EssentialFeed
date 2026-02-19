@@ -26,19 +26,19 @@ extension Date {
         return Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: self)!
     }
     
-    func adding(seconds: TimeInterval) -> Date {
-        return self + seconds
-    }
-    
     func minusFeedCacheMaxAge() -> Date {
         return adding(days: -feedCacheMaxAgeInDays)
+    }
+    
+    private var feedCacheMaxAgeInDays: Int {
+        return 3
     }
 }
 
 /// Date extension for other helper function
 extension Date {
-    private var feedCacheMaxAgeInDays: Int {
-        return 7
+    func adding(seconds: TimeInterval) -> Date {
+        return self + seconds
     }
 }
 
