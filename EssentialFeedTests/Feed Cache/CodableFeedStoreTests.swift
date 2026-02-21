@@ -8,7 +8,7 @@
 import XCTest
 import EssentialFeed
 
-// Prod code
+//MARK: -  Prod code
 class CodableFeedStore {
     private struct Cache: Codable {
         let feed: [CodableFeedImage]
@@ -63,7 +63,7 @@ class CodableFeedStore {
     }
 }
 
-// Test code
+//MARK: -  Test code
 final class CodableFeedStoreTests: XCTestCase {
     
     override func setUp() {
@@ -79,8 +79,9 @@ final class CodableFeedStoreTests: XCTestCase {
         let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
         try? FileManager.default.removeItem(at: storeURL)
     }
+    
     func test_retrieve_deliversEmptyOnEmptyCache() {
-        let sut = CodableFeedStore()
+        let sut = makeSUT()
         let exp = expectation(description: "Waiting For Cache retrieval")
         /// call retrieve thinking CodableFeedStore : <FeedStore>
         /// func retrieve(completion: @escaping RetrievalCompletion)
@@ -98,7 +99,7 @@ final class CodableFeedStoreTests: XCTestCase {
     }
     
     func test_retrieve_HasNoSideEffectOnEmptyCache() {
-        let sut = CodableFeedStore()
+        let sut = makeSUT()
         let exp = expectation(description: "Waiting For Cache retrieval")
         /// retrieve called twice
         sut.retrieve { firstResult in
@@ -119,7 +120,7 @@ final class CodableFeedStoreTests: XCTestCase {
     /// Retrieve- non empty cache return data
     /// Insert - insert into empty cache stores Data
     func test_retrieveAfterInsertingToEmptyCache_deliversInsertedValues() {
-        let sut = CodableFeedStore()
+        let sut = makeSUT()
         let feed = uniqueImageFeed()
         let timestamp = Date()
         let exp = expectation(description: "Waiting For Cache retrieval")
@@ -142,4 +143,8 @@ final class CodableFeedStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
     
+    //MARK: - Helpers
+    func makeSUT() -> CodableFeedStore {
+       return CodableFeedStore()
+    }
 }
