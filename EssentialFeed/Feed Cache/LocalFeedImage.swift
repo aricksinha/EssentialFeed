@@ -8,7 +8,7 @@
 import Foundation
 
 /// This is a mirror currently for FeedItem but for local representation wrt **FeedCache module**
-public struct LocalFeedImage: Equatable, Codable {
+public struct LocalFeedImage: Equatable {
     public let id: UUID
     public let description: String?
     public let location: String?
