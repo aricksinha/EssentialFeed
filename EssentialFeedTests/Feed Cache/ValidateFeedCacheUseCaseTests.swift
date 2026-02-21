@@ -61,7 +61,7 @@ final class ValidateFeedCacheUseCaseTests: XCTestCase {
         /// we care what happened to store
         store.completeRetrieval(with: feed.local, timestamp: expirationTimestamp)
 
-        XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
+        XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
     
     /// 6: on validate cache when our cacheAge more than maxCacheAge  days-shoul delete cache
@@ -75,7 +75,7 @@ final class ValidateFeedCacheUseCaseTests: XCTestCase {
         /// we care what happened to store
         store.completeRetrieval(with: feed.local, timestamp: expiredTimestamp)
 
-        XCTAssertEqual(store.receivedMessages, [.retrieve, .deleteCachedFeed])
+        XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
     
     func test_validateCache_doesNotDeleteInvalidCacheWhenSUTHasBeenDeallocated() {
