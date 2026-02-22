@@ -102,13 +102,9 @@ final class CodableFeedStoreTests: XCTestCase {
         let sut = makeSUT()
         let feed = uniqueImageFeed()
         let timestamp = Date()
-        let exp = expectation(description: "Waiting For Cache retrieval")
-        /// insert first
-        sut.insert(feed.local, timestamp: timestamp) { insertionError in
-            XCTAssertNil(insertionError, "Expected Feed to be inserted successfully")
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 1.0)
+        /// insert
+        insert((feed.local, timestamp), to: sut)
+        /// retrieve
         expect(sut, toRetrieve: .found(feed: feed.local, timestamp: timestamp))
     }
     
@@ -117,14 +113,10 @@ final class CodableFeedStoreTests: XCTestCase {
         let sut = makeSUT()
         let feed = uniqueImageFeed()
         let timestamp = Date()
-        let exp = expectation(description: "Waiting For Cache insertion")
-        /// insert first
-        sut.insert(feed.local, timestamp: timestamp) { insertionError in
-            XCTAssertNil(insertionError, "Expected Feed to be inserted successfully")
-            exp.fulfill()
-        }
-        
-        wait(for: [exp], timeout: 1.0)
+       
+        /// insert
+        insert((feed.local, timestamp), to: sut)
+        /// retrieve twice
         expect(sut, toRetrieve: .found(feed: feed.local, timestamp: timestamp))
         expect(sut, toRetrieve: .found(feed: feed.local, timestamp: timestamp))
     }
@@ -134,6 +126,18 @@ final class CodableFeedStoreTests: XCTestCase {
        let sut = CodableFeedStore(storeURL: testSpecificStoreURL())
        trackForMemoryLeak(sut, file: file, line: line)
         return sut
+    }
+    
+    @discardableResult
+    private func insert(_ cache: (feed: [LocalFeedImage], timestamp: Date), to sut: CodableFeedStore) -> Error? {
+        let exp = expectation(description: "Wait for cache insertion")
+        var insertionError: Error?
+        sut.insert(cache.feed, timestamp: cache.timestamp) { receivedInsertionError in
+            insertionError = receivedInsertionError
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 1.0)
+        return insertionError
     }
     
     func expect(_ sut: CodableFeedStore, toRetrieve expectedResult: RetrieveCachedFeedResult, file: StaticString = #file, line: UInt = #line) {
