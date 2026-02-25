@@ -29,13 +29,13 @@ protocol FailableRetrieveFeedStoreSpecs: FeedStoreSpecs {
 }
 
 /// Interface for error in insert()
-protocol FailableInsertFeedStoreSpecs {
+protocol FailableInsertFeedStoreSpecs: FeedStoreSpecs {
     func test_insert_deliverOnInsertionError()
     func test_insert_HasNoSideEffectOnInsertionError()
 }
 
 /// Interface for error in delete
-protocol FailableDeleteFeedStoreSpecs {
+protocol FailableDeleteFeedStoreSpecs: FeedStoreSpecs {
     func test_delete_deliversErrorOnDeletionError()
     func test_delete_HasNoSideEffectsOnDeletionError()
 }
