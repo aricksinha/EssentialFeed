@@ -8,7 +8,38 @@
 import XCTest
 import EssentialFeed
 
-//MARK: -  Test code
+protocol FeedStoreSpecs {
+    func test_retrieve_deliversEmptyOnEmptyCache()
+    func test_retrieve_HasNoSideEffectOnEmptyCache()
+    func test_retrieve_deliversFoundValueOnNonEmptyCache()
+    func test_retrieve_HasNoSideEffectOnNonEmptyCache()
+    
+    
+    func test_insert_overridePreviousInsertedValue()
+    
+    func test_delete_hasNoSideEffectsOnEmptyCache()
+    func test_delete_emptiesPreviouslyInsertedCache()
+    
+    func test_storesSideEffect_runsSerially()
+}
+
+/// Interface for error in retrieve()
+protocol FailableRetrieveFeedStoreSpecs {
+    func test_retrieve_deliverFailureOnRetrievalError()
+    func test_retrieve_HasNoSideEffectOnFailure()
+}
+
+/// Interface for error in insert()
+protocol FailableInsertFeedStoreSpecs {
+    func test_insert_deliverOnInsertionError()
+    func test_insert_HasNoSideEffectOnInsertionError()
+}
+
+/// Interface for error in delete
+protocol FailableDeleteFeedStoreSpecs {
+    func test_delete_deliversErrorOnDeletionError()
+    func test_delete_HasNoSideEffectsOnDeletionError()
+}
 final class CodableFeedStoreTests: XCTestCase {
     
     override func setUp() {
@@ -98,11 +129,21 @@ final class CodableFeedStoreTests: XCTestCase {
     func test_insert_deliverOnInsertionError() {
         let invalidStoreURL = URL(string: "https://invalid.store")
         let sut = makeSUT(storeURL: invalidStoreURL)
-        let feed = uniqueImageFeed()
+        let feed = uniqueImageFeed().local
         let timestamp = Date()
         
-        let insertionError = insert((feed.local, timestamp), to: sut)
+        let insertionError = insert((feed, timestamp), to: sut)
         XCTAssertNotNil(insertionError)
+    }
+    
+    func test_insert_HasNoSideEffectOnInsertionError() {
+        let invalidStoreURL = URL(string: "https://invalid.store")
+        let sut = makeSUT(storeURL: invalidStoreURL)
+        let feed = uniqueImageFeed().local
+        let timestamp = Date()
+        
+        insert((feed, timestamp), to: sut)
+        expect(sut, toRetrieve: .empty)
     }
     
     // DELETE
@@ -132,6 +173,14 @@ final class CodableFeedStoreTests: XCTestCase {
         let deletionError = deleteCache(from: sut)
         
         XCTAssertNotNil(deletionError, "Expected cache deletion to fail")
+    }
+    
+    func test_delete_HasNoSideEffectsOnDeletionError() {
+        let noDeletePermissionURL = cachesDirectory()
+        let sut = makeSUT(storeURL: noDeletePermissionURL)
+        
+        let deletionError = deleteCache(from: sut)
+        
         expect(sut, toRetrieve: .empty)
     }
     
