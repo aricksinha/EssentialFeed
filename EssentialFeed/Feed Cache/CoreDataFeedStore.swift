@@ -26,20 +26,72 @@ public final class CoreDataFeedStore: FeedStore {
     }
     
     public func insert(_ feed: [EssentialFeed.LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-        
+        let context = self.context
+        context.perform {
+            do {
+                /// Inserting to feed cache
+                let managedCache = ManagedCache(context: context)
+                managedCache.timestamp = timestamp
+                managedCache.feed = NSOrderedSet(array: feed.map{ localFeed in
+                   let managedFeedImage = ManagedFeedImage(context: context)
+                    managedFeedImage.id = localFeed.id
+                    managedFeedImage.imageDescription = localFeed.description
+                    managedFeedImage.location = localFeed.location
+                    managedFeedImage.url = localFeed.url
+                    return managedFeedImage
+                })
+                
+                try context.save()
+                // nil passed coz no error is there
+                completion(nil)
+            } catch {
+                completion(error)
+            }
+            
+        }
     }
     
-    public func retrieve(completion: @escaping RetrievalCompletion) {
-        
-        completion(.empty)
+    public func retrieve(completion: @escaping RetrievalCompletion)  {
+        let context = self.context
+        context.perform {
+            do {
+                // Fetch Feeds from Coredata cache
+                let request = NSFetchRequest<ManagedCache>(entityName: ManagedCache.entity().name!)
+                request.returnsObjectsAsFaults = false
+                if let cache = try context.fetch(request).first {
+                    /// Convert cache.feed[NSOrderedSet] into ManagedFeedImage and ManagedFeedImage into LocalFeedImage
+                    completion(
+                        .found(feed: cache.feed.compactMap{
+                            $0 as? ManagedFeedImage
+                        }.map{ feedImage in
+                            LocalFeedImage(
+                                id: feedImage.id,
+                                description: feedImage.imageDescription,
+                                location: feedImage.location,
+                                url: feedImage.url
+                            )
+                        },
+                               timestamp: cache.timestamp
+                              )
+                    )
+                } else {
+                    completion(.empty)
+                }
+            } catch {
+                completion(.failure(error))
+            }
+        }
     }
 }
 
+// COREDATA IMPL- INFRA IMPLEMENTATION
+@objc(ManagedCache)
 private class ManagedCache: NSManagedObject {
     @NSManaged var timestamp: Date
     @NSManaged var feed: NSOrderedSet
 }
 
+@objc(ManagedFeedImage)
 private class ManagedFeedImage: NSManagedObject {
     @NSManaged var id: UUID
     @NSManaged var imageDescription: String?
