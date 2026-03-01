@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		9A0622012F544A22004128ED /* CoreDataFeedStoreSpecsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0622002F544A22004128ED /* CoreDataFeedStoreSpecsTests.swift */; };
 		9A0622032F546B37004128ED /* CoreDataFeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0622022F546B37004128ED /* CoreDataFeedStore.swift */; };
+		9A0622052F547000004128ED /* FeedStore.xcdatamodeld in Resources */ = {isa = PBXBuildFile; fileRef = 9A0622042F547000004128ED /* FeedStore.xcdatamodeld */; };
 		9A08D8AE2F1CA3C1004FAED9 /* EssentialFeed.docc in Sources */ = {isa = PBXBuildFile; fileRef = 9A08D8AD2F1CA3C1004FAED9 /* EssentialFeed.docc */; };
 		9A08D8B42F1CA3C2004FAED9 /* EssentialFeed.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A08D8A92F1CA3C1004FAED9 /* EssentialFeed.framework */; };
 		9A08D8C42F1CA417004FAED9 /* FeedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A08D8C32F1CA417004FAED9 /* FeedImage.swift */; };
@@ -63,6 +64,7 @@
 /* Begin PBXFileReference section */
 		9A0622002F544A22004128ED /* CoreDataFeedStoreSpecsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataFeedStoreSpecsTests.swift; sourceTree = "<group>"; };
 		9A0622022F546B37004128ED /* CoreDataFeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataFeedStore.swift; sourceTree = "<group>"; };
+		9A0622042F547000004128ED /* FeedStore.xcdatamodeld */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodeld; path = FeedStore.xcdatamodeld; sourceTree = "<group>"; };
 		9A08D8A92F1CA3C1004FAED9 /* EssentialFeed.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EssentialFeed.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A08D8AD2F1CA3C1004FAED9 /* EssentialFeed.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = EssentialFeed.docc; sourceTree = "<group>"; };
 		9A08D8B32F1CA3C2004FAED9 /* EssentialFeedTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EssentialFeedTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -198,6 +200,7 @@
 				9A4E24322F42B14B00E82615 /* FeedCachePolicy.swift */,
 				9A4E24362F4BB1D000E82615 /* CodableFeedStore.swift */,
 				9A0622022F546B37004128ED /* CoreDataFeedStore.swift */,
+				9A0622042F547000004128ED /* FeedStore.xcdatamodeld */,
 			);
 			path = "Feed Cache";
 			sourceTree = "<group>";
@@ -373,6 +376,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A0622052F547000004128ED /* FeedStore.xcdatamodeld in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
