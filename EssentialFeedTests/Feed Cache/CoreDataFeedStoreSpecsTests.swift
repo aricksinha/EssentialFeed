@@ -1,0 +1,54 @@
+//
+//  CoreDataFeedStoreSpecsTests.swift
+//  EssentialFeedTests
+//
+//  Created by Aritra on 01/03/26.
+//
+
+import XCTest
+import EssentialFeed
+
+final class CoreDataFeedStoreSpecsTests: XCTestCase, FeedStoreSpecs {
+    func test_retrieve_deliversEmptyOnEmptyCache() {
+      
+       
+    }
+    
+    func test_retrieve_HasNoSideEffectOnEmptyCache() {
+    }
+    
+    func test_retrieve_deliversFoundValueOnNonEmptyCache() {
+        
+    }
+    
+    func test_retrieve_HasNoSideEffectOnNonEmptyCache() {
+    }
+    
+    func test_insert_overridePreviousInsertedValue() {
+    }
+    
+    func test_delete_hasNoSideEffectsOnEmptyCache() {
+    }
+    
+    func test_delete_emptiesPreviouslyInsertedCache() {
+        
+    }
+    
+    func test_storesSideEffect_runsSerially() {
+    }
+    
+    //MARK: - Helpers
+    func makeSUT(storeURL: URL? = nil, file: StaticString = #file, line: UInt = #line) -> CoreDataFeedStore {
+        let sut =  CoreDataFeedStore()
+       trackForMemoryLeak(sut, file: file, line: line)
+        return sut
+    }
+    
+    private func testSpecificStoreURL() -> URL {
+        return cachesDirectory().appendingPathComponent("\(type(of: self)).store")
+    }
+    
+    private func cachesDirectory() -> URL {
+        return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+    }
+}
