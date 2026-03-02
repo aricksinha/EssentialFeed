@@ -49,9 +49,7 @@ public final class CoreDataFeedStore: FeedStore {
         context.perform {
             do {
                 // Fetch Feeds from Coredata cache
-                let request = NSFetchRequest<ManagedCache>(entityName: ManagedCache.entity().name!)
-                request.returnsObjectsAsFaults = false
-                if let cache = try context.fetch(request).first {
+                if let cache = try ManagedCache.find(context: context) {
                     /// Convert cache.feed[NSOrderedSet] into ManagedFeedImage and ManagedFeedImage into LocalFeedImage
                     completion(
                         .found(feed: cache.localFeeds,
@@ -75,6 +73,12 @@ private class ManagedCache: NSManagedObject {
     
     var localFeeds: [LocalFeedImage] {
         return feed.compactMap { ($0 as? ManagedFeedImage)?.local }
+    }
+    
+    static func find(context: NSManagedObjectContext) throws -> ManagedCache? {
+        let request = NSFetchRequest<ManagedCache>(entityName: ManagedCache.entity().name!)
+        request.returnsObjectsAsFaults = false
+        return try context.fetch(request).first
     }
 }
 
