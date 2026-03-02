@@ -10,8 +10,7 @@ import EssentialFeed
 
 typealias FailableFeedStore = FailableRetrieveFeedStoreSpecs & FailableInsertFeedStoreSpecs & FailableDeleteFeedStoreSpecs
 
-final class CodableFeedStoreTests: XCTestCase, FailableFeedStore  {
-    
+final class CodableFeedStoreTests: XCTestCase, FailableFeedStore  {    
     override func setUp() {
         super.setUp()
         /// clean up disk b4 running tests - prevent side-effects (non-deterministic nature)
@@ -68,21 +67,36 @@ final class CodableFeedStoreTests: XCTestCase, FailableFeedStore  {
     }
     
     /// INSERT
-    func test_insert_overridePreviousInsertedValue() {
+    func test_insert_deliversNoErrorOnEmptyCache() {
         let sut = makeSUT()
+        
         assertThatInsertDeliversNoErrorOnEmptyCache(on: sut)
     }
     
+    func test_insert_deliversNoErrorOnNonEmptyCache() {
+        let sut = makeSUT()
+        
+        assertThatInsertDeliversNoErrorOnNonEmptyCache(on: sut)
+    }
+    
+    func test_insert_overridesPreviouslyInsertedCacheValues() {
+        let sut = makeSUT()
+        
+        assertThatInsertOverridesPreviouslyInsertedCacheValues(on: sut)
+    }
+    
     func test_insert_deliverOnInsertionError() {
-        let invalidStoreURL = URL(string: "https://invalid.store")
+        let invalidStoreURL = URL(string: "invalid://store-url")!
         let sut = makeSUT(storeURL: invalidStoreURL)
+        
         assertThatInsertDeliversErrorOnInsertionError(on: sut)
     }
     
     func test_insert_HasNoSideEffectOnInsertionError() {
-        let invalidStoreURL = URL(string: "https://invalid.store")
+        let invalidStoreURL = URL(string: "invalid://store-url")!
         let sut = makeSUT(storeURL: invalidStoreURL)
-       assertThatInsertHasNoSideEffectsOnInsertionError(on: sut)
+        
+        assertThatInsertHasNoSideEffectsOnInsertionError(on: sut)
     }
     
     // DELETE
