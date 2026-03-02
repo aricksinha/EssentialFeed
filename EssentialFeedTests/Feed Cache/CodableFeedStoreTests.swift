@@ -10,7 +10,8 @@ import EssentialFeed
 
 typealias FailableFeedStore = FailableRetrieveFeedStoreSpecs & FailableInsertFeedStoreSpecs & FailableDeleteFeedStoreSpecs
 
-final class CodableFeedStoreTests: XCTestCase, FailableFeedStore  {    
+final class CodableFeedStoreTests: XCTestCase, FailableFeedStore  {
+    
     override func setUp() {
         super.setUp()
         /// clean up disk b4 running tests - prevent side-effects (non-deterministic nature)
@@ -109,6 +110,11 @@ final class CodableFeedStoreTests: XCTestCase, FailableFeedStore  {
     func test_delete_hasNoSideEffectsOnEmptyCache() {
         let sut = makeSUT()
         assertThatDeleteHasNoSideEffectsOnEmptyCache(on: sut)
+    }
+    
+    func test_delete_deliversNoErrorOnNonEmptyCache() {
+        let sut = makeSUT()
+        assertThatDeleteDeliversNoErrorOnNonEmptyCache(on: sut)
     }
     
     func test_delete_emptiesPreviouslyInsertedCache() {
