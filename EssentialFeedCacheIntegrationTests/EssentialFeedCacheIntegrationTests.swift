@@ -41,6 +41,31 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
         expect(sutToPerformLoad, toLoad: feed)
     }
     
+    // override the items in disk i.e saved by seperate instance
+    func test_save_overridesItemsSavedOnSeperateInstance() {
+        let sutToPerformSaveFirst = makeSUT()
+        let sutToPerformSaveLast = makeSUT()
+        let sutToPerformLoad = makeSUT()
+        let firstFeed = uniqueImageFeed().models
+        let latestFeed = uniqueImageFeed().models
+        
+        let saveExp1 = expectation(description: "Wait for save1 completion")
+        sutToPerformSaveFirst.save(firstFeed) { saveError in
+            XCTAssertNil(saveError)
+            saveExp1.fulfill()
+        }
+        wait(for: [saveExp1], timeout: 1.0)
+        
+        let saveExp2 = expectation(description: "Wait for save2 completion")
+        sutToPerformSaveLast.save(latestFeed) { saveError in
+            XCTAssertNil(saveError)
+            saveExp2.fulfill()
+        }
+        wait(for: [saveExp2], timeout: 1.0)
+        
+        expect(sutToPerformLoad, toLoad: latestFeed)
+    }
+    
     //MARK: - Helper
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> LocalFeedLoader {
         let storeBundle = Bundle(for: CoreDataFeedStore.self)
