@@ -31,13 +31,8 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
         let sutToPerformSave = makeSUT()
         let sutToPerformLoad = makeSUT()
         let feed = uniqueImageFeed().models
-        let saveExp = expectation(description: "Wait for save completion")
-        sutToPerformSave.save(feed) { saveError in
-            XCTAssertNil(saveError)
-            saveExp.fulfill()
-        }
-        wait(for: [saveExp], timeout: 1.0)
         
+        save(sutToPerformSave, feed: feed)
         expect(sutToPerformLoad, toLoad: feed)
     }
     
@@ -49,20 +44,8 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
         let firstFeed = uniqueImageFeed().models
         let latestFeed = uniqueImageFeed().models
         
-        let saveExp1 = expectation(description: "Wait for save1 completion")
-        sutToPerformSaveFirst.save(firstFeed) { saveError in
-            XCTAssertNil(saveError)
-            saveExp1.fulfill()
-        }
-        wait(for: [saveExp1], timeout: 1.0)
-        
-        let saveExp2 = expectation(description: "Wait for save2 completion")
-        sutToPerformSaveLast.save(latestFeed) { saveError in
-            XCTAssertNil(saveError)
-            saveExp2.fulfill()
-        }
-        wait(for: [saveExp2], timeout: 1.0)
-        
+        save(sutToPerformSaveFirst, feed: firstFeed)
+        save(sutToPerformSaveLast, feed: latestFeed)
         expect(sutToPerformLoad, toLoad: latestFeed)
     }
     
@@ -91,6 +74,14 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
     
+    private func save(_ sut: LocalFeedLoader, feed: [FeedImage]) {
+        let saveExp = expectation(description: "Wait for save1 completion")
+        sut.save(feed) { saveError in
+            XCTAssertNil(saveError)
+            saveExp.fulfill()
+        }
+        wait(for: [saveExp], timeout: 1.0)
+    }
     private func testSpecificStoreURL() -> URL {
         return cachesDirectory().appendingPathComponent("\(type(of: self)).store")
     }
