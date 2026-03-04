@@ -10,6 +10,16 @@ import EssentialFeed
 
 final class EssentialFeedCacheIntegrationTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        deleteStoreArtifacts()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        deleteStoreArtifacts()
+    }
+    
     // load from empty cache
     func test_load_deliverNoItemsOnEmptyCache() {
         let sut = makeSUT()
@@ -24,6 +34,31 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
             exp.fulfill()
         }
         wait(for: [exp], timeout: 1.0)
+    }
+    
+    // what happens if we have something cached, deliver the items
+    func test_load_deliverItemsOnSavedOnSeperateInstance() {
+        let sutToPerformSave = makeSUT()
+        let sutToPerformLoad = makeSUT()
+        let feed = uniqueImageFeed().models
+        let saveExp = expectation(description: "Wait for save completion")
+        sutToPerformSave.save(feed) { saveError in
+            XCTAssertNil(saveError)
+            saveExp.fulfill()
+        }
+        wait(for: [saveExp], timeout: 1.0)
+        
+        let loadExp = expectation(description: "Wait for load completion")
+        sutToPerformLoad.load { result in
+            switch result {
+            case .success(let imageFeed):
+                XCTAssertEqual(imageFeed, feed)
+            case .failure(let error):
+                XCTFail("Expected successful feed result, got \(error) instead")
+            }
+            loadExp.fulfill()
+        }
+        wait(for: [loadExp], timeout: 1.0)
     }
     
     //MARK: - Helper
@@ -43,6 +78,10 @@ final class EssentialFeedCacheIntegrationTests: XCTestCase {
     
     private func cachesDirectory() -> URL {
         return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+    }
+    
+    private func deleteStoreArtifacts() {
+        try? FileManager.default.removeItem(at: testSpecificStoreURL())
     }
 
 }

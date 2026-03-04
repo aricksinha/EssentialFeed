@@ -15,6 +15,8 @@
 		9A08D8C42F1CA417004FAED9 /* FeedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A08D8C32F1CA417004FAED9 /* FeedImage.swift */; };
 		9A08D8C62F1CA832004FAED9 /* FeedLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A08D8C52F1CA832004FAED9 /* FeedLoader.swift */; };
 		9A2C78EB2F57C28300C3E37B /* XCTestCase+MemoryLeakTrackingHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A544F3B2F2E7BFC00B3BB87 /* XCTestCase+MemoryLeakTrackingHelper.swift */; };
+		9A2C78EC2F57C47100C3E37B /* SharedTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4E24302F4119AC00E82615 /* SharedTestHelpers.swift */; };
+		9A2C78ED2F57C55400C3E37B /* FeedCacheTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4E242E2F41185D00E82615 /* FeedCacheTestHelpers.swift */; };
 		9A4E241B2F37472500E82615 /* CacheFeedUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4E241A2F37472500E82615 /* CacheFeedUseCaseTests.swift */; };
 		9A4E241E2F39B9A600E82615 /* LocalFeedLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4E241D2F39B9A600E82615 /* LocalFeedLoader.swift */; };
 		9A4E24202F39BAE300E82615 /* FeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4E241F2F39BAE300E82615 /* FeedStore.swift */; };
@@ -543,8 +545,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A2C78ED2F57C55400C3E37B /* FeedCacheTestHelpers.swift in Sources */,
 				9AD83F502F57BD300036F5BC /* EssentialFeedCacheIntegrationTests.swift in Sources */,
 				9A2C78EB2F57C28300C3E37B /* XCTestCase+MemoryLeakTrackingHelper.swift in Sources */,
+				9A2C78EC2F57C47100C3E37B /* SharedTestHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
