@@ -27,9 +27,9 @@ public final class CoreDataFeedStore: FeedStore {
             do {
                 /// find a cache context and if we find it - we delete it then we save the operation
                 try ManagedCache.find(context: context).map(context.delete).map(context.save)
-                completion(nil)
+                completion(.success(()))
             } catch {
-                completion(error)
+                completion(.failure(error))
             }
         }
     }
@@ -46,9 +46,9 @@ public final class CoreDataFeedStore: FeedStore {
                 /// save()
                 try context.save()
                 // nil passed coz no error is there
-                completion(nil)
+                completion(.success(()))
             } catch {
-                completion(error)
+                completion(.failure(error))
             }
             
         }
