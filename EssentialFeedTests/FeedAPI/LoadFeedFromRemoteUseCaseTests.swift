@@ -172,11 +172,11 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
     
     //MARK: - Only for test - HTTPClientSpy
     private class HTTPClientSpy: HTTPClient {
-        private var messages: [(url: URL,completion: (HTTPClientResult) -> Void)] = []
+        private var messages: [(url: URL,completion: (HTTPClient.Result) -> Void)] = []
         var requestedURLs: [URL]  {
             return messages.map{ $0.url }
         }
-        func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void) {
+        func get(from url: URL, completion: @escaping (HTTPClient.Result) -> Void) {
             let message = (url, completion)
             messages.append(message)
         }
@@ -197,7 +197,7 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
                 headerFields: nil
             )!
             /// when get the response , we expect to get Data in success case
-            messages[index].completion(.success(data, response))
+            messages[index].completion(.success((data, response)))
         }
     }
 }
