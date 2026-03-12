@@ -61,12 +61,13 @@ public final class CoreDataFeedStore: FeedStore {
                 if let cache = try ManagedCache.find(context: context) {
                     /// Convert cache.feed[NSOrderedSet] into ManagedFeedImage and ManagedFeedImage into LocalFeedImage
                     completion(
-                        .found(feed: cache.localFeeds,
-                               timestamp: cache.timestamp)
+                        .success(.found(feed: cache.localFeeds,
+                                        timestamp: cache.timestamp))
+                        
                     )
                 } else {
                     /// if can't find the cache
-                    completion(.empty)
+                    completion(.success(.empty))
                 }
             } catch {
                 completion(.failure(error))
