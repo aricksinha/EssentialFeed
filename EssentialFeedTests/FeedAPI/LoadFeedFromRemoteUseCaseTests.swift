@@ -56,7 +56,7 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
     func test_deliversErrorOn200HTTPResponseWithInvalidJson() {
         let (sut, client) = makeSUT()
         expect(sut: sut, toCompleteWithResult: failure(.invalidData)) {
-            let invalidJSON = Data(bytes: "invalid JSON".utf8)
+            let invalidJSON = Data("invalid JSON".utf8)
             client.complete(withStatusCode: 200, data: invalidJSON)
         }
     }
@@ -134,11 +134,7 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
             "description": item.description,
             "location": item.location,
             "image": item.url.absoluteString
-        ].reduce(into: [String: Any]()) { (accumulated, element) in
-            if let value = element.value {
-                accumulated[element.key] = value
-            }
-        }
+        ].compactMapValues { $0 }
         return (item, json)
     }
     
@@ -176,11 +172,11 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
     
     //MARK: - Only for test - HTTPClientSpy
     private class HTTPClientSpy: HTTPClient {
-        private var messages: [(url: URL,completion: (HTTPClientResult) -> Void)] = []
+        private var messages: [(url: URL,completion: (HTTPClient.Result) -> Void)] = []
         var requestedURLs: [URL]  {
             return messages.map{ $0.url }
         }
-        func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void) {
+        func get(from url: URL, completion: @escaping (HTTPClient.Result) -> Void) {
             let message = (url, completion)
             messages.append(message)
         }
@@ -201,7 +197,7 @@ final class LoadFeedFromRemoteUseCaseTests: XCTestCase {
                 headerFields: nil
             )!
             /// when get the response , we expect to get Data in success case
-            messages[index].completion(.success(data, response))
+            messages[index].completion(.success((data, response)))
         }
     }
 }
