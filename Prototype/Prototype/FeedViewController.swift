@@ -6,6 +6,7 @@ struct FeedImageViewModel {
 }
 
 final class FeedViewController: UITableViewController {
+    private let feed = FeedImageViewModel.prototypeFeed
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Feed"
@@ -20,7 +21,7 @@ final class FeedViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return feed.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -28,9 +29,8 @@ final class FeedViewController: UITableViewController {
             return UITableViewCell()
         }
 
-        // Ensure location label is visible and with correct text
-        cell.locationLabel.isHidden = false
-        cell.locationLabel.text = "Location, Location"
+        let model = feed[indexPath.row]
+        cell.ocnfigure(model)
 
         return cell
     }
