@@ -99,6 +99,8 @@
                                 </tableViewCellContentView>
                                 <connections>
                                     <outlet property="locationLabel" destination="FUN-VK-Ycp" id="loc-Lbl-conn"/>
+                                    <outlet property="descriptionLabel" destination="UNE-lM-MoF" id="desc-Lbl-conn"/>
+                                    <outlet property="feedImageView" destination="GuD-xW-4q1" id="img-View-conn"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>

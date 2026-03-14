@@ -27,7 +27,11 @@ final class FeedViewController: UITableViewController {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "FeedImageCell", for: indexPath) as? FeedImageCell else {
             return UITableViewCell()
         }
+
+        // Ensure location label is visible and with correct text
+        cell.locationLabel.isHidden = false
         cell.locationLabel.text = "Location, Location"
+
         return cell
     }
 }
