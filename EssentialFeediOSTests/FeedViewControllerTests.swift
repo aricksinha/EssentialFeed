@@ -6,11 +6,20 @@
 //
 
 import XCTest
+import UIKit
 
 //MARK: - Prod Code
-final class FeedViewController {
-    init(loader: FeedViewControllerTests.LoaderSpy) {
-        
+final class FeedViewController: UIViewController {
+    private var loader: FeedViewControllerTests.LoaderSpy?
+    
+    convenience init(loader: FeedViewControllerTests.LoaderSpy) {
+        self.init()
+        self.loader = loader
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        loader?.load()
     }
 }
 //MARK: - Test Code
@@ -22,8 +31,20 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.loadCallCount, 0)
     }
     
+    func test_viewDidLoad_loadsFeed() {
+        let loader = LoaderSpy()
+        let sut = FeedViewController(loader: loader)
+        // calling this method to tell UIViewController to load its View
+        sut.loadViewIfNeeded()
+        XCTAssertEqual(loader.loadCallCount, 1)
+    }
+    
     //MARK: - Helpers
     final class LoaderSpy {
         private(set) var loadCallCount = 0
+        
+        func load() {
+            loadCallCount += 1
+        }
     }
 }
