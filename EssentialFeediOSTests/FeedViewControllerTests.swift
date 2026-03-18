@@ -22,6 +22,7 @@ final class FeedViewController: UITableViewController {
         super.viewDidLoad()
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(load), for: .valueChanged)
+        refreshControl?.beginRefreshing()
         load()
     }
     
@@ -29,6 +30,7 @@ final class FeedViewController: UITableViewController {
         loader?.load{ _ in }
     }
 }
+
 //MARK: - Test Code
 final class FeedViewControllerTests: XCTestCase {
 
@@ -39,7 +41,6 @@ final class FeedViewControllerTests: XCTestCase {
     
     func test_viewDidLoad_loadsFeed() {
         let (sut, loader) = makeSUT()
-        // calling this method to tell UIViewController to load its View
         sut.loadViewIfNeeded()
         XCTAssertEqual(loader.loadCallCount, 1)
     }
@@ -48,17 +49,16 @@ final class FeedViewControllerTests: XCTestCase {
         let (sut, loader) = makeSUT()
         
         sut.loadViewIfNeeded()
-        /// pull to refresh can be done many times
         sut.refreshControl?.simulatePullToRefresh()
         XCTAssertEqual(loader.loadCallCount, 2)
         
         sut.refreshControl?.simulatePullToRefresh()
         XCTAssertEqual(loader.loadCallCount, 3)
     }
-    
+
     //MARK: - Helpers
     
-    func makeSUT() -> (sut: FeedViewController, loader: LoaderSpy) {
+    func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: FeedViewController, loader: LoaderSpy) {
         let loader = LoaderSpy()
         let sut = FeedViewController(loader: loader)
         trackForMemoryLeak(loader)
@@ -76,6 +76,7 @@ final class FeedViewControllerTests: XCTestCase {
     }
 }
 
+//MARK: - Helpers
 private extension UIRefreshControl {
     func simulatePullToRefresh() {
         allTargets.forEach { target in
