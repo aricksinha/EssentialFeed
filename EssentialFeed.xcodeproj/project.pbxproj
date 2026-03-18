@@ -20,6 +20,7 @@
 		9A2C791F2F65F61E00C3E37B /* EssentialFeediOS.docc in Sources */ = {isa = PBXBuildFile; fileRef = 9A2C791E2F65F61E00C3E37B /* EssentialFeediOS.docc */; };
 		9A2C79252F65F61E00C3E37B /* EssentialFeediOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A2C791B2F65F61E00C3E37B /* EssentialFeediOS.framework */; };
 		9A2C793D2F6834A600C3E37B /* FeedViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A2C793A2F68343B00C3E37B /* FeedViewControllerTests.swift */; };
+		9A2C793F2F6A35EC00C3E37B /* EssentialFeed.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A08D8A92F1CA3C1004FAED9 /* EssentialFeed.framework */; platformFilter = ios; settings = {ATTRIBUTES = (Required, ); }; };
 		9A4E241B2F37472500E82615 /* CacheFeedUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4E241A2F37472500E82615 /* CacheFeedUseCaseTests.swift */; };
 		9A4E241E2F39B9A600E82615 /* LocalFeedLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4E241D2F39B9A600E82615 /* LocalFeedLoader.swift */; };
 		9A4E24202F39BAE300E82615 /* FeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4E241F2F39BAE300E82615 /* FeedStore.swift */; };
@@ -158,6 +159,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A2C793F2F6A35EC00C3E37B /* EssentialFeed.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -203,6 +205,7 @@
 				9A2C791C2F65F61E00C3E37B /* EssentialFeediOS */,
 				9A2C79282F65F61E00C3E37B /* EssentialFeediOSTests */,
 				9A08D8AA2F1CA3C1004FAED9 /* Products */,
+				9A2C793E2F6A35EC00C3E37B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -263,6 +266,13 @@
 				9A2C793A2F68343B00C3E37B /* FeedViewControllerTests.swift */,
 			);
 			path = EssentialFeediOSTests;
+			sourceTree = "<group>";
+		};
+		9A2C793E2F6A35EC00C3E37B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		9A4E24192F3746C600E82615 /* Feed Cache */ = {
