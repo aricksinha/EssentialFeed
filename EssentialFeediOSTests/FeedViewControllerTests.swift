@@ -56,7 +56,7 @@ final class FeedViewControllerTests: XCTestCase {
         assertThat(sut, isRendering: [image0])
         
         /// we can inspect the attributes of  view
-        let view = sut.feedImageView(at: 0) as? FeedImageCell
+        let _ = sut.feedImageView(at: 0) as? FeedImageCell
         assertThat(sut, hasViewConfiguredFor: image0, at: 0)
         
         sut.simulateUserInitiatedFeedReload()
@@ -172,7 +172,7 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(view0?.isShowingRetryAction, false, "Expected no retry action for first view once first image loading completes successfully")
         XCTAssertEqual(view1?.isShowingRetryAction, false, "Expected no retry action state change for second view once first image loading completes successfully")
         
-        let imageData1 = UIImage.make(withColor: .blue).pngData()!
+        let _ = UIImage.make(withColor: .blue).pngData()!
         loader.completeImageLoadingWithError(at: 1)
         XCTAssertEqual(view0?.isShowingRetryAction, false, "Expected no retry action state change for first view once second image loading completes with error")
         XCTAssertEqual(view1?.isShowingRetryAction, true, "Expected retry action for second view once second image loading completes with error")
@@ -251,7 +251,10 @@ final class FeedViewControllerTests: XCTestCase {
     
     func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: FeedViewController, loader: LoaderSpy) {
         let loader = LoaderSpy()
-        let sut = FeedViewController(feedLoader: loader, imageLoader: loader)
+        let sut = FeedUIComposer.feedComposedWith(
+            feedLoader: loader,
+            imageLoader: loader
+        )
         trackForMemoryLeak(loader)
         trackForMemoryLeak(sut)
         return (sut, loader)
