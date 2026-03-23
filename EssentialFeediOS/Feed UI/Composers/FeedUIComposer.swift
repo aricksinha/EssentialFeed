@@ -22,11 +22,21 @@ public final class FeedUIComposer {
         let feedViewController = FeedViewController(
             refreshController: refreshController
         )
-        refreshController.onRefresh = { [weak feedViewController] feed in
-            feedViewController?.tableModel = feed.map { model in
-                FeedImageCellController(model: model, imageLoader: imageLoader)
+        refreshController.onRefresh = adaptFeedToCellController(
+            forwardTo: feedViewController,
+            loader: imageLoader
+        )
+        return feedViewController
+    }
+    
+    private static func adaptFeedToCellController(
+        forwardTo controller: FeedViewController,
+        loader: FeedImageDataLoader
+    ) -> ([FeedImage]) -> Void {
+       return  { [weak controller] feed in
+            controller?.tableModel = feed.map { model in
+                FeedImageCellController(model: model, imageLoader: loader)
             }
         }
-        return feedViewController
     }
 }
