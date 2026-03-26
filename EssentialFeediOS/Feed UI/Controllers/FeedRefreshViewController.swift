@@ -4,35 +4,30 @@
 //
 //  Created by Aritra on 22/03/26.
 //
-
-import Foundation
 import UIKit
-import EssentialFeed
 
 final class FeedRefreshViewController: NSObject {
-    private(set) lazy var view: UIRefreshControl = {
-        let refreshControl = UIRefreshControl()
-        /// since refreshControl have load objc selector which is linked to Controller , so FeedRefreshVC : NSObject
-        refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
-        return refreshControl
-    }()
+    private(set) lazy var view = binded(UIRefreshControl())
     
-    private let feedLoader: FeedLoader
+    private let viewModel: FeedViewModel
     
-    var onRefresh: (([FeedImage]) -> Void)?
-    
-    init(feedLoader: FeedLoader) {
-        self.feedLoader = feedLoader
+    init(viewModel: FeedViewModel) {
+        self.viewModel = viewModel
     }
     
     @objc func refresh() {
-        view.beginRefreshing()
-        feedLoader.load{ [weak self] result in
-            if let feed = try? result.get() {
-                /// if request succeeds , its upto the client to do something with the result
-                self?.onRefresh?(feed)
+        viewModel.loadFeed()
+    }
+    
+    func binded(_ view: UIRefreshControl) -> UIRefreshControl {
+        viewModel.onChange = { [weak self] viewModel in
+            if viewModel.isLoading {
+                self?.view.beginRefreshing()
+            } else {
+                self?.view.endRefreshing()
             }
-            self?.view.endRefreshing()
         }
+       view.addTarget(self, action: #selector(refresh), for: .valueChanged)
+       return view
     }
 }

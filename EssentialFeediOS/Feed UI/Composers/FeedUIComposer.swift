@@ -16,13 +16,15 @@ public final class FeedUIComposer {
         feedLoader: FeedLoader,
         imageLoader: FeedImageDataLoader
     ) -> FeedViewController {
+        /// Create a FeedViewModel
+        let feedViewModel = FeedViewModel(feedLoader: feedLoader)
         /// Create a refresh controller
-        let refreshController = FeedRefreshViewController(feedLoader: feedLoader)
+        let refreshController = FeedRefreshViewController(viewModel: feedViewModel)
         /// Create a FeedVC- which can be used with in onRefresh closure
         let feedViewController = FeedViewController(
             refreshController: refreshController
         )
-        refreshController.onRefresh = adaptFeedToCellController(
+        feedViewModel.onFeedLoad = adaptFeedToCellController(
             forwardTo: feedViewController,
             loader: imageLoader
         )
