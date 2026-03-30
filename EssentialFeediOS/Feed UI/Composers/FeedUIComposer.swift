@@ -17,10 +17,14 @@ public final class FeedUIComposer {
         imageLoader: FeedImageDataLoader
     ) -> FeedViewController {
         /// Create a Feed Presenter
-        let feedPresenter = FeedPresenter(feedLoader: feedLoader)
+        let feedPresenter = FeedPresenter()
+        let presentationAdapter = FeedLoaderPresentationAdapter(
+            feedLoader: feedLoader,
+            feedPresenter: feedPresenter
+        )
         /// Create a refresh controller
         let refreshController = FeedRefreshViewController(
-            loadFeed: feedPresenter.loadFeed
+            loadFeed: presentationAdapter.loadFeed
         )
         /// Create a FeedVC- which can be used with in onRefresh closure
         let feedViewController = FeedViewController(
@@ -59,6 +63,28 @@ private final class FeedViewAdapter: FeedView {
     func display(_ viewModel: FeedViewModel) {
         controller?.tableModel = viewModel.feed.map { model in
             FeedImageCellController(viewModel: FeedImageViewModel(model: model, imageLoader: imageLoader, imageTransformer: UIImage.init))
+        }
+    }
+}
+
+private final class FeedLoaderPresentationAdapter {
+    private let feedLoader: FeedLoader
+    private let feedPresenter: FeedPresenter
+    
+    init(feedLoader: FeedLoader, feedPresenter: FeedPresenter) {
+        self.feedLoader = feedLoader
+        self.feedPresenter = feedPresenter
+    }
+    
+    func loadFeed() {
+        feedPresenter.didStartLoadingFeed()
+        feedLoader.load { [weak self] result in
+            switch result {
+            case .success(let feed):
+                self?.feedPresenter.didFinishLoadingFeed(with: feed)
+            case .failure(let error):
+                self?.feedPresenter.didFinishLoadingFeed(with: error)
+            }
         }
     }
 }
