@@ -16,23 +16,15 @@ public final class FeedUIComposer {
         feedLoader: FeedLoader,
         imageLoader: FeedImageDataLoader
     ) -> FeedViewController {
-        /// Create a Feed Presenter
-        let feedPresenter = FeedPresenter()
-        let presentationAdapter = FeedLoaderPresentationAdapter(
-            feedLoader: feedLoader,
-            feedPresenter: feedPresenter
-        )
-        /// Create a refresh controller
-        let refreshController = FeedRefreshViewController(
-            delegate: presentationAdapter
-        )
-        /// Create a FeedVC- which can be used with in onRefresh closure
-        let feedViewController = FeedViewController(
-            refreshController: refreshController
-        )
-        feedPresenter.loadingView = WeakRefVirtualProxy(refreshController)
-        feedPresenter.feedView = FeedViewAdapter(controller: feedViewController, imageLoader: imageLoader)
-        return feedViewController
+        let presentationAdapter = FeedLoaderPresentationAdapter(feedLoader: feedLoader)
+        let refreshController = FeedRefreshViewController(delegate: presentationAdapter)
+        let feedController = FeedViewController(refreshController: refreshController)
+        
+        presentationAdapter.feedPresenter = FeedPresenter(
+            feedView: FeedViewAdapter(controller: feedController, imageLoader: imageLoader),
+            loadingView: WeakRefVirtualProxy(refreshController))
+        
+        return feedController
     }
 }
 
@@ -69,21 +61,20 @@ private final class FeedViewAdapter: FeedView {
 
 private final class FeedLoaderPresentationAdapter: FeedRefreshViewControllerDelegate {
     private let feedLoader: FeedLoader
-    private let feedPresenter: FeedPresenter
+    var feedPresenter: FeedPresenter?
     
-    init(feedLoader: FeedLoader, feedPresenter: FeedPresenter) {
+    init(feedLoader: FeedLoader) {
         self.feedLoader = feedLoader
-        self.feedPresenter = feedPresenter
     }
     
     func didRequestFeedRefresh() {
-        feedPresenter.didStartLoadingFeed()
+        feedPresenter?.didStartLoadingFeed()
         feedLoader.load { [weak self] result in
             switch result {
             case .success(let feed):
-                self?.feedPresenter.didFinishLoadingFeed(with: feed)
+                self?.feedPresenter?.didFinishLoadingFeed(with: feed)
             case .failure(let error):
-                self?.feedPresenter.didFinishLoadingFeed(with: error)
+                self?.feedPresenter?.didFinishLoadingFeed(with: error)
             }
         }
     }
