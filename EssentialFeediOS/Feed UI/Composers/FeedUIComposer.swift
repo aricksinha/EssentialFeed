@@ -19,7 +19,9 @@ public final class FeedUIComposer {
         /// Create a Feed Presenter
         let feedPresenter = FeedPresenter(feedLoader: feedLoader)
         /// Create a refresh controller
-        let refreshController = FeedRefreshViewController(presenter: feedPresenter)
+        let refreshController = FeedRefreshViewController(
+            loadFeed: feedPresenter.loadFeed
+        )
         /// Create a FeedVC- which can be used with in onRefresh closure
         let feedViewController = FeedViewController(
             refreshController: refreshController
