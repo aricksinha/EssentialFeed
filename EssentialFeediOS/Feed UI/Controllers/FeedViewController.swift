@@ -8,26 +8,25 @@
 import Foundation
 import UIKit
 
-final public class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching {
-    private var refreshController: FeedRefreshViewController?
+protocol FeedViewControllerDelegate {
+    func didRequestFeedRefresh()
+}
+
+final public class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching, FeedLoadingView {
+    var delegate: FeedViewControllerDelegate?
     var tableModel = [FeedImageCellController]() { /// Model tp drive table-view rendering and ask tableview to populate
         didSet { tableView.reloadData() }
     }
     private var cellControllers = [IndexPath: FeedImageCellController]()
     
-    convenience init(
-        refreshController: FeedRefreshViewController
-    ) {
-        self.init()
-        self.refreshController = refreshController
-    }
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-        /// set the refesh control to  view of refreshController which is UIRefreshControl
-        refreshControl = refreshController?.view
-        tableView.prefetchDataSource = self
-        refreshController?.refresh()
+        refresh()
+    }
+    
+    @IBAction private func refresh() {
+        delegate?.didRequestFeedRefresh()
     }
     
     public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -35,7 +34,7 @@ final public class FeedViewController: UITableViewController, UITableViewDataSou
     }
     
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return cellController(forRowAt: indexPath).view()
+        return cellController(forRowAt: indexPath).view(tableView)
     }
     
     public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
@@ -59,5 +58,14 @@ final public class FeedViewController: UITableViewController, UITableViewDataSou
     private func cancelCellControllerLoad(forRowAt indexPath: IndexPath) {
         /// calls deinit of cellController and calls cancel
         cellController(forRowAt: indexPath).cancelLoad()
+    }
+    
+    //MARK: - <FeedLoadingView> conformance
+    func display(_ viewModel: FeedLoadingViewModel) {
+        if viewModel.isLoading {
+            refreshControl?.beginRefreshing()
+        } else {
+            refreshControl?.endRefreshing()
+        }
     }
 }
