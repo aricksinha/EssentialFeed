@@ -33,7 +33,7 @@ public final class RemoteFeedLoader: FeedLoader {
         client.get(from: url) { [weak self] result in
             guard self != nil else { return }
             switch result {
-            case .success(let data, let response):
+            case .success((let data, let response)):
                 let result = RemoteFeedLoader.map(data, from: response)
                completion(result)
             case .failure:
