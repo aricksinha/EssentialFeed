@@ -114,6 +114,7 @@
                         <connections>
                             <outlet property="dataSource" destination="AV9-FP-qjB" id="VPT-Tz-ot8"/>
                             <outlet property="delegate" destination="AV9-FP-qjB" id="ugx-fI-PWi"/>
+                            <outlet property="prefetchDataSource" destination="AV9-FP-qjB" id="syw-zg-rRd"/>
                         </connections>
                     </tableView>
                     <refreshControl key="refreshControl" opaque="NO" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="LA3-bm-Py8">
